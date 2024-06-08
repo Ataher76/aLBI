@@ -1,4 +1,3 @@
-"# aLBI" 
 install.packages("usethis")
 install.packages("devtools")
 library(usethis)
