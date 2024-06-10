@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+install_github("Ataher76/aLBI")
 library(aLBI)
 ```
 
