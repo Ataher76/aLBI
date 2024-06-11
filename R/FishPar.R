@@ -20,6 +20,9 @@ FishPar <- function(data, resample, progress) {
     stop("The dataframe must have exactly two columns as Length and Frequency")
   }
 
+  # cleaning the data or removing the NA values
+  data <- data[[complete.cases(data)]]
+
   # Define a function to calculate parameters for confidence intervals
   CalParCI <- function(data, Lmax) {
     # Calculate Linf
