@@ -20,22 +20,6 @@ FishPar <- function(data, resample, progress) {
     stop("The dataframe must have exactly two columns as Length and Frequency")
   }
 
-  # Check for NA/NaN values
-  if (any(is.na(data[1])) || any(is.na(data[2]))) {
-    stop("Data frame contains NA or NaN values.")
-  }
-
-  # Check for zero values in Frequency column
-  if (any(data[1] == 0) || any(data[2] == 0)) {
-    stop("Frequency column contains zero values, division by zero not allowed.")
-  }
-
-  # Check if column types are double(numeric)
-  column_type <- sapply(data, class)
-  if (!all(column_type == "numeric")) {
-    stop("Not all columns are of type double (numeric)")
-  }
-
   # Ensure data consistency: Length and Frequency should be positive
   if (any(data[1] <= 0) || any(data[2] <= 0)) {
     stop("Length and Frequency values should be positive.")
