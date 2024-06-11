@@ -21,7 +21,7 @@ FishPar <- function(data, resample, progress) {
   }
 
   # cleaning the data or removing the NA values
-  data <- data[complete.cases(data)]
+  data <- data[complete.cases(data), ]
 
   # Define a function to calculate parameters for confidence intervals
   CalParCI <- function(data, Lmax) {
