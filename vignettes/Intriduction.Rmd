@@ -17,6 +17,13 @@ knitr::opts_chunk$set(
 )
 ```
 
+Detach the package
+```{r setup}
+# unload if this package is in use previously
+detach("package:aLBI", unload = T)
+```
+
+
 ```{r setup}
 install_github("Ataher76/aLBI")
 library(aLBI)

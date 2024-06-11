@@ -5,18 +5,21 @@ library(readxl)
 #Loading three data files
 mydata1 <- read_excel("LC.xlsx", sheet = 1)
 mydata2 <- read_excel("LC.xlsx", sheet = 2)
-data<- read_excel("LC.xlsx")
+dat<- read.csv("LBB.csv")
+dataf <- read_excel("LBI.xlsx")
 
+ndata <- read.csv("nda.csv")
+# unload if this package is in use previously
+detach("package:aLBI", unload = T)
 
-# Install package
+# Install the latest package
 devtools::install_github("Ataher76/aLBI", force = T)
 
-# calling the first function
+# calling the library
 library(aLBI)
 
-#detach("package:aLBI", unload = T)
-
-EstimatedParameters <- FishPar(data = mydata1, resample = 1000, progress = F )
+# estimating lenght parameters
+EstimatedParameters <- FishPar(data = ndata, resample = 1000, progress = F )
 
 #Extracting estimated length parameters
 estimatedParameters$estimated_length_par
@@ -35,10 +38,10 @@ estimatedParameters$Pobj
 cpdataTable <- read_excel("PT.xlsx")
 #Calling the second function
 StockStatus <- FishSS(data = cpdataTable,
-       LM_ratio = 0.7,
-       Pobj = 97,
-       Pmat = 29.91881 ,
-       Popt = 25.46208
+                      LM_ratio = 0.7,
+                      Pobj = 97,
+                      Pmat = 29.91881 ,
+                      Popt = 25.46208
 )
 
 # Extracting stock status
