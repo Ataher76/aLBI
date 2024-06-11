@@ -20,11 +20,6 @@ FishPar <- function(data, resample, progress) {
     stop("The dataframe must have exactly two columns as Length and Frequency")
   }
 
-  # Ensure data consistency: Length and Frequency should be positive
-  if (any(data[1] <= 0) || any(data[2] <= 0)) {
-    stop("Length and Frequency values should be positive.")
-  }
-
   # Define a function to calculate parameters for confidence intervals
   CalParCI <- function(data, Lmax) {
     # Calculate Linf
