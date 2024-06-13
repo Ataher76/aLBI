@@ -1,6 +1,19 @@
 
-# this is the first function
-
+#' Calculate Length-Based Indicators for Fish Stock Assessment
+#'
+#' @description This function calculates various length-based indicators for fish stock assessment
+#' using length frequency data and bootstrap resampling.
+#' @param data A data frame containing two columns: Length and Frequency.
+#' @param resample An integer indicating the number of bootstrap resamples.
+#' @param progress A logical value indicating whether to display progress.
+#' @return A list containing estimated length parameters, Froese indicators, and other relevant metrics.
+#' @examples
+#' data <- data.frame(Length = c(10, 20, 30, 40, 50), Frequency = c(5, 10, 15, 20, 25))
+#' FishPar(data, 100, progress = FALSE)
+#' @export
+FishPar <- function(data, resample, progress) {
+  # Function code here...
+}
 ########################
 FishPar <- function(data, resample, progress) {
   # Check if it is a valid dataframe
