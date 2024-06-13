@@ -12,6 +12,9 @@ ndata <- read.csv("nda.csv")
 # unload if this package is in use previously
 detach("package:aLBI", unload = T)
 
+# or remove the existing package by following code
+remove.packages("aLBI")
+
 # Install the latest package
 devtools::install_github("Ataher76/aLBI", force = T)
 
