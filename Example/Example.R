@@ -21,6 +21,18 @@ devtools::install_github("Ataher76/aLBI", force = T)
 # calling the library
 library(aLBI)
 
+# see the documentation of the first function
+?FishPar
+
+#or
+help(FishPar)
+
+# see the documentation of the secon function
+?FishSS
+
+# or
+help(FishSS)
+
 # estimating lenght parameters
 EstimatedParameters <- FishPar(data = ndata, resample = 1000, progress = F )
 

@@ -2,24 +2,22 @@ Package: aLBI
 Type: Package
 Title: Length-Based Indicators for Fish Stock Assessment
 Version: 0.1.0
-Author: [Ataher ali] <ataher.cu.ms@.com>
-Maintainer: [Ataher ali] <ataher.cu.ms@.com>
+Author: Ataher Ali <ataher.cu.ms@gmail.com>
+Maintainer: Ataher Ali <ataher.cu.ms@gmail.com>
 Description: This package provides tools for calculating length-based indicators for fish stock assessment using length frequency data and bootstrap resampling. It includes functions for data validation, parameter estimation, and stock status assessment.
-Depends:
-    R (>= 3.5.0)
-Imports:
-    dplyr,
-    ggplot2,
-    readxl,
+Depends: R (>= 3.5.0)
+Imports: 
+    dplyr, 
+    ggplot2, 
+    readxl, 
     stats
-Suggests:
-    testthat,
-    knitr,
+Suggests: 
+    testthat, 
+    knitr, 
     rmarkdown
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-URL1: https://github.com/Ataher76/aLBI
-URL2: https://orcid.org/my-orcid?orcid=0009-0008-8780-0903
+URL: https://github.com/Ataher76/aLBI
 BugReports: https://github.com/Ataher76/aLBI/issues
 RoxygenNote: 7.1.1

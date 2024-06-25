@@ -1,11 +1,294 @@
-install.packages("usethis")
-install.packages("devtools")
-library(usethis)
-library(devtools)
-install_github("Ataher76/aLBI")
-library(aLBI)
+#Calling the library
 library(readxl)
-mydata = read_excel("LC.xlsx", sheet = 1)
-FishPar(data = mydata, progress = F, resample = 1000)
-cp = read_excel("PT.xlsx")
-FishSS(data = cp, LM_ratio = 0.98, Pobj = 110.23, Pmat = 46.7, Popt = 31.98)
+
+##########################################
+#Loading three data files
+mydata1 <- read_excel("LC.xlsx", sheet = 1)
+mydata2 <- read_excel("LC.xlsx", sheet = 2)
+dat<- read.csv("LBB.csv")
+dataf <- read_excel("LBI.xlsx")
+
+ndata <- read.csv("nda.csv")
+# unload if this package is in use previously
+detach("package:aLBI", unload = T)
+
+# or remove the existing package by following code
+remove.packages("aLBI")
+
+# Install the latest package
+devtools::install_github("Ataher76/aLBI", force = T)
+
+# calling the library
+library(aLBI)
+
+# see the documentation of the first function
+?FishPar
+
+#or
+help(FishPar)
+
+# see the documentation of the secon function
+?FishSS
+
+# or
+help(FishSS)
+
+# estimating lenght parameters
+EstimatedParameters <- FishPar(data = ndata, resample = 1000, progress = F )
+
+#Extracting estimated length parameters
+estimatedParameters$estimated_length_par
+#Extracting estimated froese parameters
+estimatedParameters$estimated_froese_par
+#Extracting estimated frequency parameters
+estimatedParameters$estimated_freq_par
+#Extracting estimated LM_ratio
+estimatedParameters$LM_ratio
+#Extracting estimated Pobj
+estimatedParameters$Pobj
+
+
+#Loading the cope and pund table
+
+cpdataTable <- read_excel("PT.xlsx")
+#Calling the second function
+StockStatus <- FishSS(data = cpdataTable,
+                      LM_ratio = 0.7,
+                      Pobj = 97,
+                      Pmat = 29.91881 ,
+                      Popt = 25.46208
+)
+
+# Extracting stock status
+
+StockStatus$StockStatus
+StockStatus$Target_Cols
+
+
+
+devtools::build()
+── R CMD build ─────────────────────────────────────
+✔  checking for file 'D:\R\MyRpackage\aLBI/DESCRIPTION'
+─  preparing 'aLBI':
+✔  checking DESCRIPTION meta-information ...
+─  checking for LF line-endings in source and make files and shell scripts
+─  checking for empty or unneeded directories
+─  building 'aLBI_0.1.0.tar.gz'
+
+
+
+ Checking ════════════════════════════════════════
+Setting env vars:
+• _R_CHECK_CRAN_INCOMING_REMOTE_               : FALSE
+• _R_CHECK_CRAN_INCOMING_                      : FALSE
+• _R_CHECK_FORCE_SUGGESTS_                     : FALSE
+• _R_CHECK_PACKAGES_USED_IGNORE_UNUSED_IMPORTS_: FALSE
+• NOT_CRAN                                     : true
+── R CMD check ─────────────────────────────────────
+─  using log directory 'C:/Users/User/AppData/Local/Temp/RtmpeqTvlT/file5c8049bb5cbc/aLBI.Rcheck'
+─  using R version 4.2.3 (2023-03-15 ucrt)
+─  using platform: x86_64-w64-mingw32 (64-bit)
+─  using session charset: UTF-8
+─  using options '--no-manual --as-cran'
+✔  checking for file 'aLBI/DESCRIPTION'
+─  checking extension type ... Package
+─  this is package 'aLBI' version '0.1.0'
+─  package encoding: UTF-8
+✔  checking package namespace information
+✔  checking package dependencies (23.7s)
+✔  checking if this is a source package ...
+✔  checking if there is a namespace
+✔  checking for executable files (412ms)
+✔  checking for hidden files and directories ...
+W  checking for portable file names
+   Found the following files with non-portable file names:
+     Plots/Boxplot showing different lengths.png
+     Plots/Density of Different Lengths.png
+     Plots/Estimated Froese indicators vs target plot.png
+     Plots/FreqDist of Different Length.png
+     Plots/Frequency distribution and lenghts with mean and confidence intervals.png
+     Plots/Frequency distribution model plot.png
+     Read ME.txt
+   These are not fully portable file names.
+   See section 'Package structure' in the 'Writing R Extensions' manual.
+✔  checking whether package 'aLBI' can be installed (2s)
+✔  checking installed package size (688ms)
+✔  checking package directory
+✔  checking for future file timestamps (498ms)
+✔  checking DESCRIPTION meta-information (351ms)
+N  checking top-level files
+   Non-standard files/directories found at top level:
+     'Data' 'Example' 'Plots' 'Read ME.txt'
+✔  checking for left-over files ...
+✔  checking index information
+✔  checking package subdirectories ...
+✔  checking R files for non-ASCII characters ...
+✔  checking R files for syntax errors ...
+✔  checking whether the package can be loaded ...
+✔  checking whether the package can be loaded with stated dependencies ...
+✔  checking whether the package can be unloaded cleanly ...
+✔  checking whether the namespace can be loaded with stated dependencies ...
+✔  checking whether the namespace can be unloaded cleanly (338ms)
+✔  checking loading without being on the library search path ...
+N  checking dependencies in R code ...
+   Namespaces in Imports field not imported from:
+     'dplyr' 'ggplot2' 'readxl' 'stats'
+     All declared Imports should be used.
+✔  checking S3 generic/method consistency (545ms)
+✔  checking replacement functions ...
+✔  checking foreign function calls ...
+N  checking R code for possible problems (3.4s)
+   FishPar: no visible global function definition for 'complete.cases'
+   FishPar : <anonymous>: no visible global function definition for
+     'quantile'
+   FishPar: no visible global function definition for 'par'
+   FishPar: no visible global function definition for 'hist'
+   FishPar: no visible global function definition for 'abline'
+   FishPar: no visible global function definition for 'segments'
+   FishPar: no visible global function definition for 'density'
+   FishPar: no visible global function definition for 'boxplot'
+   FishPar: no visible global function definition for 'barplot'
+   FishPar: no visible global function definition for 'loess'
+   FishPar: no visible global function definition for 'lines'
+   FishPar: no visible global function definition for 'predict'
+   FishPar: no visible global function definition for 'legend'
+   FishPar: no visible global function definition for 'box'
+   FishPar: no visible global function definition for 'axis'
+   FishPar: no visible global function definition for 'rect'
+   FishPar: no visible global function definition for 'text'
+   Undefined global functions or variables:
+     abline axis barplot box boxplot complete.cases density hist legend
+     lines loess par predict quantile rect segments text
+   Consider adding
+     importFrom("graphics", "abline", "axis", "barplot", "box", "boxplot",
+                "hist", "legend", "lines", "par", "rect", "segments",
+                "text")
+     importFrom("stats", "complete.cases", "density", "loess", "predict",
+                "quantile")
+   to your NAMESPACE file.
+✔  checking Rd files ...
+✔  checking Rd metadata ...
+N  checking Rd line widths ...
+   Rd file 'FishSS.Rd':
+     \examples lines wider than 100 characters:
+                           E = rnorm(10), F = rnorm(10), G = rnorm(10), H = rnorm(10), I = rnorm(10), J = rnorm(10))
+
+   These lines will be truncated in the PDF manual.
+✔  checking Rd cross-references (428ms)
+W  checking for missing documentation entries ...
+   Undocumented code objects:
+     'nda'
+   Undocumented data sets:
+     'nda'
+   All user-level objects in a package should have documentation entries.
+   See chapter 'Writing R documentation files' in the 'Writing R
+   Extensions' manual.
+✔  checking for code/documentation mismatches (663ms)
+✔  checking Rd \usage sections (886ms)
+✔  checking Rd contents ...
+✔  checking for unstated dependencies in examples ...
+W  checking contents of 'data' directory ...
+   Files not of a type allowed in a 'data' directory:
+     'LC.xlsx' 'PT.xlsx'
+   Please use e.g. 'inst/extdata' for non-R data files
+
+✔  checking data for non-ASCII characters ...
+✔  checking LazyData ...
+✔  checking data for ASCII and uncompressed saves ...
+W  checking files in 'vignettes'
+   Files in the 'vignettes' directory but no files in 'inst/doc':
+     'Intriduction.R', 'Intriduction.Rmd', 'Introduction.html'
+   Package has no Sweave vignette sources and no VignetteBuilder field.
+✔  checking examples (810ms)
+✔  checking for unstated dependencies in 'tests' ...
+─  checking tests ...
+✔  Running 'testthat.R' (810ms)
+✔  checking for non-standard things in the check directory
+✔  checking for detritus in the temp directory
+
+   See
+     'C:/Users/User/AppData/Local/Temp/RtmpeqTvlT/file5c8049bb5cbc/aLBI.Rcheck/00check.log'
+   for details.
+
+
+── R CMD check results ───────────── aLBI 0.1.0 ────
+Duration: 41.3s
+
+❯ checking for portable file names ... WARNING
+  Found the following files with non-portable file names:
+    Plots/Boxplot showing different lengths.png
+    Plots/Density of Different Lengths.png
+    Plots/Estimated Froese indicators vs target plot.png
+    Plots/FreqDist of Different Length.png
+    Plots/Frequency distribution and lenghts with mean and confidence intervals.png
+    Plots/Frequency distribution model plot.png
+    Read ME.txt
+  These are not fully portable file names.
+  See section 'Package structure' in the 'Writing R Extensions' manual.
+
+❯ checking for missing documentation entries ... WARNING
+  Undocumented code objects:
+    'nda'
+  Undocumented data sets:
+    'nda'
+  All user-level objects in a package should have documentation entries.
+  See chapter 'Writing R documentation files' in the 'Writing R
+  Extensions' manual.
+
+❯ checking contents of 'data' directory ... WARNING
+  Files not of a type allowed in a 'data' directory:
+    'LC.xlsx' 'PT.xlsx'
+  Please use e.g. 'inst/extdata' for non-R data files
+
+❯ checking files in 'vignettes' ... WARNING
+  Files in the 'vignettes' directory but no files in 'inst/doc':
+    'Intriduction.R', 'Intriduction.Rmd', 'Introduction.html'
+  Package has no Sweave vignette sources and no VignetteBuilder field.
+
+❯ checking top-level files ... NOTE
+  Non-standard files/directories found at top level:
+    'Data' 'Example' 'Plots' 'Read ME.txt'
+
+❯ checking dependencies in R code ... NOTE
+  Namespaces in Imports field not imported from:
+    'dplyr' 'ggplot2' 'readxl' 'stats'
+    All declared Imports should be used.
+
+❯ checking R code for possible problems ... NOTE
+  FishPar: no visible global function definition for 'complete.cases'
+  FishPar : <anonymous>: no visible global function definition for
+    'quantile'
+  FishPar: no visible global function definition for 'par'
+  FishPar: no visible global function definition for 'hist'
+  FishPar: no visible global function definition for 'abline'
+  FishPar: no visible global function definition for 'segments'
+  FishPar: no visible global function definition for 'density'
+  FishPar: no visible global function definition for 'boxplot'
+  FishPar: no visible global function definition for 'barplot'
+  FishPar: no visible global function definition for 'loess'
+  FishPar: no visible global function definition for 'lines'
+  FishPar: no visible global function definition for 'predict'
+  FishPar: no visible global function definition for 'legend'
+  FishPar: no visible global function definition for 'box'
+  FishPar: no visible global function definition for 'axis'
+  FishPar: no visible global function definition for 'rect'
+  FishPar: no visible global function definition for 'text'
+  Undefined global functions or variables:
+    abline axis barplot box boxplot complete.cases density hist legend
+    lines loess par predict quantile rect segments text
+  Consider adding
+    importFrom("graphics", "abline", "axis", "barplot", "box", "boxplot",
+               "hist", "legend", "lines", "par", "rect", "segments",
+               "text")
+    importFrom("stats", "complete.cases", "density", "loess", "predict",
+               "quantile")
+  to your NAMESPACE file.
+
+❯ checking Rd line widths ... NOTE
+  Rd file 'FishSS.Rd':
+    \examples lines wider than 100 characters:
+                          E = rnorm(10), F = rnorm(10), G = rnorm(10), H = rnorm(10), I = rnorm(10), J = rnorm(10))
+
+  These lines will be truncated in the PDF manual.
+
+0 errors ✔ | 4 warnings ✖ | 4 notes ✖

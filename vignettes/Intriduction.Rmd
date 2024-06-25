@@ -1,15 +1,16 @@
 ---
-title: "Simple r package for fsih stock assessment"
-author: "Ataher ali"
-date: "`r Sys.Date()`"
+title: "Simple R Package for Fish Stock Assessment"
+author: Ataher ali
 output: rmarkdown::html_vignette
-
 vignette: >
-  %\VignetteIndexEntry{Intriduction}
+  %\VignetteIndexEntry{Simple R Package for Fish Stock Assessment}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+# Simple R Package for Fish Stock Assessment
+
+...
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
