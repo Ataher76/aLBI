@@ -2,13 +2,7 @@
 library(readxl)
 
 ##########################################
-#Loading three data files
-mydata1 <- read_excel("LC.xlsx", sheet = 1)
-mydata2 <- read_excel("LC.xlsx", sheet = 2)
-dat<- read.csv("LBB.csv")
-dataf <- read_excel("LBI.xlsx")
 
-ndata <- read.csv("nda.csv")
 # unload if this package is in use previously
 detach("package:aLBI", unload = T)
 
