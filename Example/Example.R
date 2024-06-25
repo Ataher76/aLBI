@@ -12,6 +12,9 @@ remove.packages("aLBI")
 # Install the latest package
 devtools::install_github("Ataher76/aLBI", force = T)
 
+
+#Enter one or more numbers, or an empty line to skip updates: 1
+
 # calling the library
 library(aLBI)
 
@@ -28,7 +31,7 @@ help(FishPar)
 help(FishSS)
 
 # estimating lenght parameters
-EstimatedParameters <- FishPar(data = lenfreq01, resample = 1000, progress = F)
+estimatedParameters <- FishPar(data = lenfreq01, resample = 1000, progress = F)
 
 #Extracting estimated length parameters
 estimatedParameters$estimated_length_par
@@ -42,9 +45,8 @@ estimatedParameters$LM_ratio
 estimatedParameters$Pobj
 
 
-#Loading the cope and pund table
 
-cpdataTable <- read_excel("PT.xlsx")
+
 #Calling the second function
 StockStatus <- FishSS(data = CPdata,
                       LM_ratio = 0.7,
