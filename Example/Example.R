@@ -34,7 +34,7 @@ help(FishPar)
 help(FishSS)
 
 # estimating lenght parameters
-EstimatedParameters <- FishPar(data = ndata, resample = 1000, progress = F )
+EstimatedParameters <- FishPar(data = lenfreq01, resample = 1000, progress = F)
 
 #Extracting estimated length parameters
 estimatedParameters$estimated_length_par
@@ -52,7 +52,7 @@ estimatedParameters$Pobj
 
 cpdataTable <- read_excel("PT.xlsx")
 #Calling the second function
-StockStatus <- FishSS(data = cpdataTable,
+StockStatus <- FishSS(data = CPdata,
                       LM_ratio = 0.7,
                       Pobj = 97,
                       Pmat = 29.91881 ,
