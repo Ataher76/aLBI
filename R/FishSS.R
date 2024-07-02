@@ -37,7 +37,7 @@ FishSS <- function(data,
     warning("Your LM_ration doesn't fall in the appropriate condition. The value should be <= 0.75 and >= 0.9")
   }
 
-  #This function will pick the target value Tx from the target column
+  #This condition will pick the target value Tx from the target column
   for(i in p[[1,2]])
     if ( i > 0){
       (Tr <- Popt)

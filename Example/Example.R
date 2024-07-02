@@ -3,6 +3,10 @@ library(readxl)
 
 ##########################################
 
+#Install devtools package by following
+
+install.packages("devtools")
+
 # unload if this package is in use previously
 detach("package:aLBI", unload = T)
 
