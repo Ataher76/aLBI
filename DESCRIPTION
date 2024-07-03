@@ -1,7 +1,7 @@
 Package: aLBI
 Type: Package
 Title: aLBI - A Simple R Package for Estimating Length-Based Indicators and Fish Stock Assessment
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person("Ataher", "Ali", email = "ataher.cu.ms@gmail.com", role = c("aut", "cre")),
     person("Alam", "Mohammed Shahidul", email = "alamms@cu.ac.bd", role = "aut"))
@@ -19,3 +19,4 @@ URL: https://github.com/Ataher76/aLBI
 BugReports: https://github.com/Ataher76/aLBI/issues
 RoxygenNote: 7.3.1
 VignetteBuilder: knitr
+SubmissionComment: Resubmitting after addressing issues pointed out by CRAN team. Fixed documentation and data loading issues.
