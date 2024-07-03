@@ -1,2 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^Example/\.RData$
+^\..*
+^doc$
+^Meta$

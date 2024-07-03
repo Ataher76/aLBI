@@ -1,12 +1,12 @@
 Package: aLBI
 Type: Package
-Title: aLBI - a simple r package for estimating Length-Based Indicators and Fish Stock Assessment
+Title: aLBI - A Simple R Package for Estimating Length-Based Indicators and Fish Stock Assessment
 Version: 0.1.0
 Authors@R: c(
     person("Ataher", "Ali", email = "ataher.cu.ms@gmail.com", role = c("aut", "cre")),
     person("Alam", "Mohammed Shahidul", email = "alamms@cu.ac.bd", role = "aut"))
 Maintainer: Ataher Ali <ataher.cu.ms@gmail.com>
-Description: This package provides tools for calculating length-based indicators for fish stock assessment using length frequency data and bootstrap resampling. It includes functions for data validation, parameter estimation, and stock status assessment.
+Description: Provides tools for calculating length-based indicators for fish stock assessment using length frequency data and bootstrap resampling. It includes functions for data validation, parameter estimation, and stock status assessment.
 Depends: R (>= 3.5.0)
 Imports: 
     dplyr, 
@@ -23,3 +23,4 @@ LazyData: true
 URL: https://github.com/Ataher76/aLBI
 BugReports: https://github.com/Ataher76/aLBI/issues
 RoxygenNote: 7.3.1
+VignetteBuilder: knitr
