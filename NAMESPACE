@@ -2,3 +2,8 @@
 
 export(FishPar)
 export(FishSS)
+importFrom("graphics", "abline", "axis", "barplot", "box", "boxplot",
+           "hist", "legend", "lines", "par", "rect", "segments", "text")
+
+importFrom("stats", "complete.cases", "density",
+           "loess", "predict", "quantile")

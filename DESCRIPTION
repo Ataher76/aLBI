@@ -9,10 +9,7 @@ Maintainer: Ataher Ali <ataher.cu.ms@gmail.com>
 Description: Provides tools for calculating length-based indicators for fish stock assessment using length frequency data and bootstrap resampling. It includes functions for data validation, parameter estimation, and stock status assessment.
 Depends: R (>= 3.5.0)
 Imports: 
-    dplyr, 
-    ggplot2, 
     readxl, 
-    stats
 Suggests: 
     testthat, 
     knitr, 
