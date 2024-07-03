@@ -2,7 +2,8 @@
 % Please edit documentation in R/FishPar.R
 \name{FishPar}
 \alias{FishPar}
-\title{Calculate Length-Based Indicators for Fish Stock Assessment}
+\title{Calculate Length-Based Indicators for Fish Stock Assessment
+#'@importFrom graphics abline axis barplot box boxplot hist legend lines par rect segments text}
 \usage{
 FishPar(data, resample, progress)
 }
@@ -22,5 +23,7 @@ using length frequency data and bootstrap resampling.
 }
 \examples{
 data <- data.frame(Length = c(10, 20, 30, 40, 50), Frequency = c(5, 10, 15, 20, 25))
-FishPar(data, 100, progress = FALSE)
+FishPar(lenfreq01, 100, progress = FALSE)
+utils::data("lenfreq01", package = "aLBI")
+utils::data("lenfreq02", package = "aLBI")
 }

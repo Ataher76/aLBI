@@ -6,10 +6,8 @@ Authors@R: c(
     person("Ataher", "Ali", email = "ataher.cu.ms@gmail.com", role = c("aut", "cre")),
     person("Alam", "Mohammed Shahidul", email = "alamms@cu.ac.bd", role = "aut"))
 Maintainer: Ataher Ali <ataher.cu.ms@gmail.com>
-Description: Provides tools for calculating length-based indicators for fish stock assessment using length frequency data and bootstrap resampling. It includes functions for data validation, parameter estimation, and stock status assessment.
+Description: This package provides functions for estimating length-based indicators and assessing fish stock.
 Depends: R (>= 3.5.0)
-Imports: 
-    readxl, 
 Suggests: 
     testthat, 
     knitr, 

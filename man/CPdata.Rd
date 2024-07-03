@@ -3,17 +3,33 @@
 \docType{data}
 \name{CPdata}
 \alias{CPdata}
-\title{CPdata}
+\title{CPdata: Example dataset for aLBI package}
 \format{
-A data frame with 21 rows and 11 columns.
+A data frame with [number of rows] rows and 11 columns:
+\describe{
+  \item{\code{A}}{[description of column A]}
+  \item{\code{B}}{[description of column B]}
+  \item{\code{C}}{[description of column C]}
+  \item{\code{D}}{[description of column D]}
+  \item{\code{E}}{[description of column E]}
+  \item{\code{F}}{[description of column F]}
+  \item{\code{G}}{[description of column G]}
+  \item{\code{H}}{[description of column H]}
+  \item{\code{I}}{[description of column I]}
+  \item{\code{J}}{[description of column J]}
+  \item{\code{Tx}}{[description of column Tx]}
+}
 }
 \source{
-References: Cope, J. M., & Punt, A. E. (2009). Length‐Based Reference Points for Data‐Limited Situations: Applications and Restrictions. Marine and Coastal Fisheries, 1(1), 169–186. https://doi.org/10.1577/C08-025.1
+[Include the source of the data if available]
 }
 \usage{
-CPdata
+data(CPdata)
 }
 \description{
-This dataset contains information about the stock status Probability according to Cope & Punt, 2009.
+This dataset contains description of CPdata.
 }
-\keyword{datasets}
+\examples{
+data(CPdata)
+head(CPdata)
+}

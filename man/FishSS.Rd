@@ -24,10 +24,6 @@ A numeric vector containing TSB40 and LSB25.
 This function assesses the stock status based on parameters calculated by the FishPar function.
 }
 \examples{
-data <- data.frame(Tx = 1:10, A = rnorm(10), B = rnorm(10),
-C = rnorm(10), D = rnorm(10),
-E = rnorm(10), F = rnorm(10),
-G = rnorm(10), H = rnorm(10),
-I = rnorm(10), J = rnorm(10))
-FishSS(data, 0.75, 100, 30, 25)
+utils::data("CPdata", package = "aLBI")
+FishSS(CPdata, 0.75, 100, 30, 25)
 }

@@ -1,6 +1,8 @@
 
 #' Calculate Length-Based Indicators for Fish Stock Assessment
-#'
+#'#'@importFrom graphics abline axis barplot box boxplot hist legend lines par rect segments text
+#' @importFrom stats complete.cases density loess predict quantile
+#' @importFrom graphics abline axis barplot box boxplot hist legend lines par rect segments text
 #' @description This function calculates various length-based indicators for fish stock assessment
 #' using length frequency data and bootstrap resampling.
 #' @param data A data frame containing two columns: Length and Frequency.
@@ -9,13 +11,20 @@
 #' @return A list containing estimated length parameters, Froese indicators, and other relevant metrics.
 #' @examples
 #' data <- data.frame(Length = c(10, 20, 30, 40, 50), Frequency = c(5, 10, 15, 20, 25))
-#' FishPar(data, 100, progress = FALSE)
+#' FishPar(lenfreq01, 100, progress = FALSE)
+#' utils::data("lenfreq01", package = "aLBI")
+#' utils::data("lenfreq02", package = "aLBI")
 #' @export
 FishPar <- function(data, resample, progress) {
   # Function code here...
 }
 ########################
 FishPar <- function(data, resample, progress) {
+
+  # Load necessary datasets within the function
+  utils::data("lenfreq01", package = "aLBI")
+  utils::data("lenfreq02", package = "aLBI")
+
   # Check if it is a valid dataframe
   if (!is.data.frame(data)) {
     stop("Input is not a data frame.")

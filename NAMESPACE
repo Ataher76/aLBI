@@ -2,8 +2,20 @@
 
 export(FishPar)
 export(FishSS)
-importFrom("graphics", "abline", "axis", "barplot", "box", "boxplot",
-           "hist", "legend", "lines", "par", "rect", "segments", "text")
-
-importFrom("stats", "complete.cases", "density",
-           "loess", "predict", "quantile")
+importFrom(graphics,abline)
+importFrom(graphics,axis)
+importFrom(graphics,barplot)
+importFrom(graphics,box)
+importFrom(graphics,boxplot)
+importFrom(graphics,hist)
+importFrom(graphics,legend)
+importFrom(graphics,lines)
+importFrom(graphics,par)
+importFrom(graphics,rect)
+importFrom(graphics,segments)
+importFrom(graphics,text)
+importFrom(stats,complete.cases)
+importFrom(stats,density)
+importFrom(stats,loess)
+importFrom(stats,predict)
+importFrom(stats,quantile)

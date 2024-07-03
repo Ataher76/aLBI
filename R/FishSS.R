@@ -8,9 +8,8 @@
 #' @param Popt A numeric value representing the percentage of optimally sized fish.
 #' @return A numeric vector containing TSB40 and LSB25.
 #' @examples
-#' data <- data.frame(Tx = 1:10, A = rnorm(10), B = rnorm(10), C = rnorm(10), D = rnorm(10),
-#'                    E = rnorm(10), F = rnorm(10), G = rnorm(10), H = rnorm(10), I = rnorm(10), J = rnorm(10))
-#' FishSS(data, 0.75, 100, 30, 25)
+#' utils::data("CPdata", package = "aLBI")
+#' FishSS(CPdata, 0.75, 100, 30, 25)
 #' @export
 FishSS <- function(data, LM_ratio, Pobj, Pmat, Popt) {
   # Function code here...
@@ -18,6 +17,8 @@ FishSS <- function(data, LM_ratio, Pobj, Pmat, Popt) {
 # Second function that will calculate the stock status in respect to cope and punt
 FishSS <- function(data,
                    LM_ratio, Pobj, Pmat, Popt ){
+  # Load necessary datasets within the function
+  utils::data("CPdata", package = "aLBI")
   # this function will pick the columns by following LM_ration and Pobj
   if(Pobj <= 100 && LM_ratio <= 0.75){
     p <- cbind(data[, c("Tx", "A", "C")])

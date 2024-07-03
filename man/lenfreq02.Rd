@@ -3,17 +3,24 @@
 \docType{data}
 \name{lenfreq02}
 \alias{lenfreq02}
-\title{lenfreq02}
+\title{lenfreq02: Example dataset for aLBI package}
 \format{
-A data frame.
+A data frame with [number of rows] rows and 2 columns:
+\describe{
+  \item{\code{Frequency}}{[description of column Frequency]}
+  \item{\code{LengthClass}}{[description of column LengthClass]}
+}
 }
 \source{
-Self-generated data.
+[Include the source of the data if available]
 }
 \usage{
-lenfreq02
+data(lenfreq02)
 }
 \description{
-This is another dummy length frequency data set used for testing purposes.
+This dataset contains description of lenfreq02.
 }
-\keyword{datasets}
+\examples{
+data(lenfreq02)
+head(lenfreq02)
+}
