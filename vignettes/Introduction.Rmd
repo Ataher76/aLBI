@@ -16,9 +16,9 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
+options(repos = c(CRAN = "https://cran.rstudio.com"))
 ```
 
-options(repos = c(CRAN = "https://cran.rstudio.com"))
 
 Introduction
 This vignette provides an overview of the aLBI package...
@@ -36,12 +36,12 @@ if (!requireNamespace("devtools", quietly = TRUE)) {
 
 Detach or remove the package if previously attached
 ```{r package_management}
-# unload if this package is in use previously
-if ("aLBI" %in% rownames(installed.packages())) {
+# Unload the aLBI package if it is already loaded
+if ("package:aLBI" %in% search()) {
   detach("package:aLBI", unload = TRUE)
 }
 
-# or remove the existing package by following code
+# Remove the aLBI package if it is installed
 if ("aLBI" %in% rownames(installed.packages())) {
   remove.packages("aLBI")
 }
