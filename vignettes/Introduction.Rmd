@@ -3,7 +3,7 @@ title: "aLBI - A Simple R Package for Estimating Length-Based Indicators and Fis
 author: "Ataher Ali"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Simple R Package for Fish Stock Assessment}
+  %\VignetteIndexEntry{aLBI - A Simple R Package for Estimating Length-Based Indicators and Fish Stock Assessment from Length Frequency Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
