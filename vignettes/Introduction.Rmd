@@ -13,7 +13,8 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  cache = TRUE # Ensure caching is appropriately set
 )
 
 options(repos = c(CRAN = "https://cran.rstudio.com"))
@@ -66,10 +67,16 @@ Prepare your data in a specific format before using the functions. Ensure the da
 ```{r data_preparation}
 library(readxl)
 # Load your length-frequency data from the system file
-lenfreq_path <- system.file("extdata", "LC.xlsx", package = "aLBI")
+lenfreq_path <- system.file("exdata", "LC.xlsx", package = "aLBI")
 print(lenfreq_path)  # Check the generated path
-lenfreq_data <- readxl::read_excel(lenfreq_path)
 
+if (lenfreq_path == "") {
+  stop("The required file LC.xlsx is missing. Please check the inst/extdata directory.")
+}
+
+# load the lenght frequency data
+lenfreq_data <- readxl::read_excel(lenfreq_path)
+print(lenfreq_data)  # check the data 
 # replace with your data directory
 ```
 
@@ -123,8 +130,15 @@ Example
 
 ```{r FishSS_Example}
 # Load the stock status criteria data
-cpdata_path <- system.file("data", "cpdata.rda", package = "aLBI")
+cpdata_path <- system.file("exdata", "cpdata.xlsx", package = "aLBI")
+print(cpdata_path) #check if the path exist
+
+if (cpdata_path == "") {
+  stop("The required file cpdata.xlsx is missing. Please check the inst/extdata directory.")
+}
+# loading the cope and punt table
 cpdata <- readxl::read_excel(cpdata_path)
+print(cpdata)
 
 # Running the FishSS function
 stock_status <- FishSS(data = cpdata,

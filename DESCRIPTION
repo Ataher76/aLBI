@@ -1,7 +1,7 @@
 Package: aLBI
 Type: Package
 Title: A Simple R Package for Estimating Length-Based Indicators and Fish Stock Assessment from Length Frequency Data
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: c(
     person("Ataher", "Ali", email = "ataher.cu.ms@gmail.com", role = c("aut", "cre")),
     person("Alam", "Mohammed Shahidul", email = "alamms@cu.ac.bd", role = "aut"))
