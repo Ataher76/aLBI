@@ -1,0 +1,159 @@
+---
+title: "aLBI - A Simple R Package for Estimating Length-Based Indicators and Fish Stock Assessment from Length Frequency Data"
+author: "Ataher Ali"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Simple R Package for Fish Stock Assessment}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Simple R Package for Fish Stock Assessment
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+options(repos = c(CRAN = "https://cran.rstudio.com"))
+```
+
+
+Introduction
+This vignette provides an overview of the aLBI package...
+
+Installation
+You can install the package from GitHub using devtools:
+
+```{r installing_package }
+# Install devtools if you haven't already
+if (!requireNamespace("devtools", quietly = TRUE)) {
+  install.packages("devtools")
+}
+
+```
+
+Detach or remove the package if previously attached
+```{r package_management}
+# Unload the aLBI package if it is already loaded
+if ("package:aLBI" %in% search()) {
+  detach("package:aLBI", unload = TRUE)
+}
+
+# Remove the aLBI package if it is installed
+if ("aLBI" %in% rownames(installed.packages())) {
+  remove.packages("aLBI")
+}
+
+```
+
+Install and Load the Package in your R session
+
+```{r calling_library}
+# Install the Fish StockAssessment package
+devtools::install_github("Ataher76/aLBI")
+
+# Load the aLBI package
+library(aLBI)
+
+```
+
+
+Data Preparation
+Prepare your data in a specific format before using the functions. Ensure the data frame has two columns: Length and Frequency. Here's an example of how to load and prepare your data using the readxl package:
+
+```{r data_preparation}
+library(readxl)
+
+# Load your length-frequency data
+data <- read_excel("D:/Academic/Fourth Year/Term paper/R package/Code/Excel/LC.xlsx", sheet = 2)
+
+# replace with your data directory
+```
+
+Function: FishPar
+The FishPar function estimates biological parameters such as Lmax, Linf, Lmat, and Lopt using bootstrapping resampling method.
+
+Arguments
+
+data: A data frame containing Length and Frequency columns.
+resample: Number of bootstrap resamples. Default is 1000.
+progress: Logical value indicating whether to show progress. Default is TRUE.
+
+Example
+
+```{r FishPar_Example}
+# Running the FishPar function
+results <- FishPar(data = data, resample = 1000, progress = FALSE)
+
+# Viewing the results
+results$estimated_length_par
+results$estimated_froese_par
+results$estimated_freq_par
+results$forese_ind_vs_target
+results$LM_ratio
+results$Pobj
+
+```
+
+Output
+The function returns a list with the following components:
+
+estimated_length_par: Data frame of estimated length parameters with confidence intervals.
+estimated_froese_par: Data frame of estimated Froese indicators.
+estimated_freq_par: Data frame of frequency parameters.
+forese_ind_vs_target: Data frame comparing Froese indicators with targets.
+LM_ratio: Length at maturity ratio.
+Pobj: Objective percentage combining Pmat, Popt, and Pmega.
+
+
+Function: FishSS
+The FishSS function evaluates stock status using criteria based on the estimated parameters.
+
+Arguments
+data: A data frame of the stock status according to Cope and Punt (2009).
+LM_ratio: Length at maturity ratio from FishPar function.
+Pobj: Objective percentage from FishPar function.
+Pmat: Percentage of mature fish.
+Popt: Percentage of optimal fish.
+
+Example
+
+```{r FishSS_Example}
+# Load the stock status criteria data
+cpdata <- read_excel("D:/Academic/Fourth Year/Term paper/R package/Code/Excel/PT.xlsx")
+
+# Running the FishSS function
+stock_status <- FishSS(data = cpdata,
+                       LM_ratio = results$LM_ratio,
+                       Pobj = results$Pobj,
+                       Pmat = results$estimated_froese_par[1, 2],
+                       Popt = results$estimated_froese_par[2, 2])
+
+# Viewing the stock status
+stock_status
+
+```
+
+
+
+
+
+Output
+The function returns a named vector with TSB40 and LSB25 values indicating stock status.
+
+Conclusion
+The Fish Stock Assessment package provides a robust framework for estimating biological parameters and assessing fish stock status. By following the steps outlined in this vignette, you can effectively utilize this package for your fish stock assessment needs.
+
+Additional Information
+Contact
+For any questions or issues, please contact the package maintainer:
+
+Name: Ataher Ali
+Email: ataher.cu.ms@gmail.com
+Acknowledgements
+I would like to thank the contributors and the community for their support and feedback.
+
+This vignette provides a comprehensive guide to using the FishStockAssessment package. By following these instructions, users can effectively conduct fish stock assessments and contribute to sustainable fishery management practices.
+
