@@ -175,3 +175,8 @@ I would like to thank the contributors and the community for their support and f
 
 This vignette provides a comprehensive guide to using the Assessment package. By following these instructions, users can effectively conduct fish stock assessments and contribute to sustainable fishery management practices.
 
+References
+
+Cope, J. M., & Punt, A. E. (2009). Length‐Based Reference Points for Data‐Limited Situations: Applications and Restrictions. Marine and Coastal Fisheries, 1(1), 169–186. https://doi.org/10.1577/C08-025.1
+
+Froese, R. (2004). Keep it simple: Three indicators to deal with overfishing. Fish and Fisheries, 5(1), 86–91. https://doi.org/10.1111/j.1467-2979.2004.00144.x
