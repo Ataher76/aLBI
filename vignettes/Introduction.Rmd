@@ -65,9 +65,10 @@ Prepare your data in a specific format before using the functions. Ensure the da
 
 ```{r data_preparation}
 library(readxl)
-
-# Load your length-frequency data
-data <- read_excel("D:/Academic/Fourth Year/Term paper/R package/Code/Excel/LC.xlsx", sheet = 2)
+# Load your length-frequency data from the system file
+lenfreq_path <- system.file("extdata", "LC.xlsx", package = "aLBI")
+print(lenfreq_path)  # Check the generated path
+lenfreq_data <- readxl::read_excel(lenfreq_path)
 
 # replace with your data directory
 ```
@@ -85,7 +86,7 @@ Example
 
 ```{r FishPar_Example}
 # Running the FishPar function
-results <- FishPar(data = data, resample = 1000, progress = FALSE)
+results <- FishPar(data = lenfreq_data, resample = 1000, progress = FALSE)
 
 # Viewing the results
 results$estimated_length_par
@@ -122,7 +123,8 @@ Example
 
 ```{r FishSS_Example}
 # Load the stock status criteria data
-cpdata <- read_excel("D:/Academic/Fourth Year/Term paper/R package/Code/Excel/PT.xlsx")
+cpdata_path <- system.file("data", "cpdata.rda", package = "aLBI")
+cpdata <- readxl::read_excel(cpdata_path)
 
 # Running the FishSS function
 stock_status <- FishSS(data = cpdata,
@@ -152,8 +154,10 @@ For any questions or issues, please contact the package maintainer:
 
 Name: Ataher Ali
 Email: ataher.cu.ms@gmail.com
+
+
 Acknowledgements
 I would like to thank the contributors and the community for their support and feedback.
 
-This vignette provides a comprehensive guide to using the FishStockAssessment package. By following these instructions, users can effectively conduct fish stock assessments and contribute to sustainable fishery management practices.
+This vignette provides a comprehensive guide to using the Assessment package. By following these instructions, users can effectively conduct fish stock assessments and contribute to sustainable fishery management practices.
 
