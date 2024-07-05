@@ -1,5 +1,4 @@
 #' Assess Stock Status Based on Calculated Parameters
-#'
 #' @description This function assesses the stock status based on parameters calculated by the FishPar function.
 #' @param data A data frame containing the necessary columns for stock status calculation.
 #' @param LM_ratio A numeric value representing the length at maturity ratio.

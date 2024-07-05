@@ -1,4 +1,3 @@
-
 #' Calculate Length-Based Indicators for Fish Stock Assessment
 #'#'@importFrom graphics abline axis barplot box boxplot hist legend lines par rect segments text
 #' @importFrom stats complete.cases density loess predict quantile
@@ -20,6 +19,11 @@ FishPar <- function(data, resample, progress) {
 }
 ########################
 FishPar <- function(data, resample, progress) {
+
+  oldpar <- par(no.readonly = TRUE)  # Save current par settings
+  on.exit(par(oldpar))  # Reset par settings when function exits
+  # Code that modifies par settings
+  par(mfrow = c(2, 2))
 
   # Load necessary datasets within the function
   utils::data("lenfreq01", package = "aLBI")
@@ -135,10 +139,6 @@ FishPar <- function(data, resample, progress) {
   # Calculating the length at maturity ratio from the mean_estimated
   LM_ratio <-  (Lmat / Lopt)
 
-  #Close the plot window
-  #dev.off()
-
-
   # Plotting the frequency of bootstrapped resampled data for each parameter
   # Save the plots to a directory
 
@@ -157,13 +157,6 @@ FishPar <- function(data, resample, progress) {
     segments(upper_bound[i], 0, upper_bound[i], max(hist(parameter_estimates[, i], plot = FALSE)$counts), col = "black", lwd = 2, lty = "dotted" )
 
   }
-
-  #dev.off()  # Close the pdf device
-  # Density plots
-  # Save the plots to a directory
-
-  #pdf("plots_density.pdf")  # Open a pdf device to save the histograms
-
 
   #par(mfrow=c(2, 3)) # Setting up another 2x3 grid for the density plots
 

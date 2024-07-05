@@ -20,44 +20,41 @@ knitr::opts_chunk$set(
 options(repos = c(CRAN = "https://cran.rstudio.com"))
 ```
 
+## Introduction
+The `aLBI` package provides tools for estimating length-based indicators and assessing fish stock using methods outlined by Cope and Punt (2009) and Froese (2004). These methods are particularly useful in data-limited situations and for providing simple indicators to address overfishing.
 
-Introduction
-This vignette provides an overview of the aLBI package...
+### Methods
+The package includes functions to calculate various length-based indicators and visualize fish stock data. The approaches from Cope and Punt (2009) are used to establish reference points, while Froese (2004)'s indicators help to evaluate overfishing status.
+
 
 Installation
-You can install the package from GitHub using devtools:
-
+To install the aLBI package from GitHub, follow these steps. Note that devtools is required to install packages from GitHub.
 ```{r installing_package }
+# You can install the package using the following commands in your R session:
 # Install devtools if you haven't already
-if (!requireNamespace("devtools", quietly = TRUE)) {
-  install.packages("devtools")
-}
+# install.packages("devtools")
+# Install the aLBI package from GitHub
+# devtools::install_github("Ataher76/aLBI")
 
 ```
 
-Detach or remove the package if previously attached
-```{r package_management}
-# Unload the aLBI package if it is already loaded
-if ("package:aLBI" %in% search()) {
-  detach("package:aLBI", unload = TRUE)
+Package Management
+Ensure the required packages are loaded in your R session. The following code checks for package availability and stops execution with a message if a package is missing.
+```{r package_management }
+# Check if required packages are installed and load them
+# Check if required packages are installed and load them
+required_packages <- c("aLBI", "readxl", "devtools")
+
+for (pkg in required_packages) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop(paste("Package", pkg, "is required but not installed. Please install it using install.packages(\"", pkg, "\").", sep = " "))
+  }
 }
-
-# Remove the aLBI package if it is installed
-if ("aLBI" %in% rownames(installed.packages())) {
-  remove.packages("aLBI")
-}
-
-```
-
-Install and Load the Package in your R session
-
-```{r calling_library}
-# Install the Fish StockAssessment package
-devtools::install_github("Ataher76/aLBI")
 
 # Load the aLBI package
 library(aLBI)
-
+library(readxl)
+library(devtools)
 ```
 
 
@@ -87,7 +84,7 @@ Arguments
 
 data: A data frame containing Length and Frequency columns.
 resample: Number of bootstrap resamples. Default is 1000.
-progress: Logical value indicating whether to show progress. Default is TRUE.
+progress: Logical value indicating whether to show progress. Default is FALSE.
 
 Example
 
@@ -154,15 +151,13 @@ stock_status
 
 
 
-
-
 Output
 The function returns a named vector with TSB40 and LSB25 values indicating stock status.
 
-Conclusion
+##Conclusion
 The Fish Stock Assessment package provides a robust framework for estimating biological parameters and assessing fish stock status. By following the steps outlined in this vignette, you can effectively utilize this package for your fish stock assessment needs.
 
-Additional Information
+##Additional Information
 Contact
 For any questions or issues, please contact the package maintainer:
 
@@ -170,13 +165,13 @@ Name: Ataher Ali
 Email: ataher.cu.ms@gmail.com
 
 
-Acknowledgements
+##Acknowledgements
 I would like to thank the contributors and the community for their support and feedback.
 
 This vignette provides a comprehensive guide to using the Assessment package. By following these instructions, users can effectively conduct fish stock assessments and contribute to sustainable fishery management practices.
 
-References
 
-Cope, J. M., & Punt, A. E. (2009). Length‐Based Reference Points for Data‐Limited Situations: Applications and Restrictions. Marine and Coastal Fisheries, 1(1), 169–186. https://doi.org/10.1577/C08-025.1
+## References
+- Cope, J. M., & Punt, A. E. (2009). Length‐Based Reference Points for Data‐Limited Situations: Applications and Restrictions. *Marine and Coastal Fisheries, 1*(1), 169–186. https://doi.org/10.1577/C08-025.1
 
-Froese, R. (2004). Keep it simple: Three indicators to deal with overfishing. Fish and Fisheries, 5(1), 86–91. https://doi.org/10.1111/j.1467-2979.2004.00144.x
+- Froese, R. (2004). Keep it simple: Three indicators to deal with overfishing. *Fish and Fisheries, 5*(1), 86–91. https://doi.org/10.1111/j.1467-2979.2004.00144.x
