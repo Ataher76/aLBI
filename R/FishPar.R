@@ -49,6 +49,7 @@ FishPar <- function(data, resample, progress) {
   # cleaning the data or removing the NA values
   data <- data[complete.cases(data), ]
 
+
   # Define a function to calculate parameters for confidence intervals
   CalParCI <- function(data, Lmax) {
     # Calculate Linf
@@ -79,7 +80,7 @@ FishPar <- function(data, resample, progress) {
       bootstrap_sample <- data[sample(nrow(data), replace = TRUE), ]
 
       # Calculate Lmax for the bootstrap sample
-      Lmax_bootstrap <- max(bootstrap_sample[[1]])
+      Lmax_bootstrap <- max(bootstrap_sample[[1]]) # maximum lenght from resampling data
 
       # Calculate parameters for the bootstrap sample
       parameter_estimates[i, ] <- CalParCI(bootstrap_sample, Lmax_bootstrap)

@@ -4,7 +4,7 @@ Title: Estimating Length-Based Indicators for Fish Stock
 Version: 0.1.4
 Authors@R: c(
     person("Ataher", "Ali", email = "ataher.cu.ms@gmail.com", role = c("aut", "cre")),
-    person("Alam", "Mohammed Shahidul", email = "alamms@cu.ac.bd", role = "aut"))
+    person("Mohammed Shahidul", "Alam", email = "alamms@cu.ac.bd", role = "aut"))
 Maintainer: Ataher Ali <ataher.cu.ms@gmail.com>
 Description: Provides tools for estimating length-based indicators from length frequency data to assess fish stock status and manage fisheries sustainably. Implements methods from Cope and Punt (2009) <doi:10.1577/C08-025.1> for data-limited stock assessment and Froese (2004) <doi:10.1111/j.1467-2979.2004.00144.x> for detecting overfishing using simple indicators. Key functions include:
     CalPar(): Calculates various lengths used in fish stock assessment as biological length indicators such as asymptotic length (Linf), maximum length (Lmax), length at sexual maturity (Lm), and optimal length (Lopt).
