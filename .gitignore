@@ -1,7 +1,3 @@
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
-inst/doc
 /doc/
 /Meta/
+.Rproj.user

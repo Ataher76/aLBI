@@ -10,10 +10,7 @@
 #' utils::data("CPdata", package = "aLBI")
 #' FishSS(CPdata, 0.75, 100, 30, 25)
 #' @export
-FishSS <- function(data, LM_ratio, Pobj, Pmat, Popt) {
-  # Function code here...
-}
-# Second function that will calculate the stock status in respect to cope and punt
+#'
 FishSS <- function(data,
                    LM_ratio, Pobj, Pmat, Popt ){
   # Load necessary datasets within the function

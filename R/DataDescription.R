@@ -62,3 +62,20 @@ NULL  # Include this line to ensure the data is loaded correctly
 #' head(lenfreq02)
 NULL  # Include this line to ensure the data is loaded correctly
 
+#' ExData: Example raw lenght dataset for aLBI package
+#'
+#' This dataset contains description of ExData.
+#'
+#' @name ExData
+#' @docType data
+#' @usage data(ExData)
+#' @format A data frame with [number of rows] rows and 1 columns:
+#' \describe{
+#'   \item{\code{Length}}{[description of column Length measured]}
+#' }
+#' @source [Include the source of the data if available]
+#' @examples
+#' data(ExData)
+#' head(ExData)
+NULL  # Include this line to ensure the data is loaded correctly
+

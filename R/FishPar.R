@@ -14,10 +14,7 @@
 #' utils::data("lenfreq01", package = "aLBI")
 #' utils::data("lenfreq02", package = "aLBI")
 #' @export
-FishPar <- function(data, resample, progress) {
-  # Function code here...
-}
-########################
+
 FishPar <- function(data, resample, progress) {
 
   oldpar <- par(no.readonly = TRUE)  # Save current par settings
@@ -259,15 +256,6 @@ FishPar <- function(data, resample, progress) {
   #3. Main graph with frequency distribution and corresponding lengths
   par(mfrow = c(2,3))
 
-  for (i in 1:6) {
-    dens <- density(parameter_estimates[,i])
-    plot(dens, main=parameter_names[i], col="blue", lwd=1.5, xlim=c(min(parameter_estimates[,i]), max(parameter_estimates[,i])))
-    abline(v = mean_estimates[i], col = "red", lwd = 2)
-    #segments(lower_bound[i], 0, mean_estimates[i], max(dens$y), col = "yellow3", lwd = 1.5 )
-    segments(lower_bound[i], 0, lower_bound[i], max(dens$y), col = "black", lwd = 2, lty = "dotted" )
-    segments(upper_bound[i], 0, upper_bound[i], max(dens$y), col = "black", lwd = 2, lty = "dotted" )
-
-  }
   for(i in 1:6){
 
     plot(data[[1]], data[[2]], type = "l", lwd = 1.8, main = parameter_names[i] ,

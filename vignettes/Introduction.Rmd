@@ -21,47 +21,115 @@ options(repos = c(CRAN = "https://cran.rstudio.com"))
 ```
 
 ## Introduction
-The `aLBI` package provides tools for estimating length-based indicators and assessing fish stock using methods outlined by Cope and Punt (2009) and Froese (2004). These methods are particularly useful in data-limited situations and for providing simple indicators to address overfishing.
+The `aLBI` package provides tools for estimating length-based indicators and assessing fish stock using methods outlined by Cope and Punt (2009) and Froese (2004). These methods are particularly useful in data-limited situations and for providing simple indicators to address over-fishing. This simple package facilitates the estimation of life history parameters of fish only from the lenght frequency data.
+
+## Function Overview
+
+The aLBI package offers three primary functions:
+- **FrequencyTable**: Creates frequency tables from length data.
+- **FishPar**: Estimates biological parameters using bootstrapping.
+- **FishSS**: Evaluates stock status based on estimated parameters.
+
 
 ### Methods
 The package includes functions to calculate various length-based indicators and visualize fish stock data. The approaches from Cope and Punt (2009) are used to establish reference points, while Froese (2004)'s indicators help to evaluate overfishing status.
 
-
-Installation
+### Installation
 To install the aLBI package from GitHub, follow these steps. Note that devtools is required to install packages from GitHub.
 ```{r installing_package }
 # You can install the package using the following commands in your R session:
 # Install devtools if you haven't already
 # install.packages("devtools")
-# Install the aLBI package from GitHub
+# # Install dplyr if you haven't already
+# install.packages("dplyr")
+# # Install readxl if you haven't already
+# install.packages("readxl")
+# install aLBI package from CRAN
+# install.packages("aLBI")
+# Install the most updated version of aLBI package from GitHub
 # devtools::install_github("Ataher76/aLBI")
 
 ```
 
-Package Management
+### Package Management
 Ensure the required packages are loaded in your R session. The following code checks for package availability and stops execution with a message if a package is missing.
 ```{r package_management }
 # Check if required packages are installed and load them
 # Check if required packages are installed and load them
-required_packages <- c("aLBI", "readxl", "devtools")
+required_packages <- c("aLBI", "readxl", "dplyr", "devtools")
 
 for (pkg in required_packages) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
-    stop(paste("Package", pkg, "is required but not installed. Please install it using install.packages(\"", pkg, "\").", sep = " "))
+    warning(paste("Package", pkg, "is required but not installed."))
+  } else {
+    library(pkg, character.only = TRUE)
   }
 }
+
 
 # Load the aLBI package
 library(aLBI)
 library(readxl)
+library(dplyr)
 library(devtools)
 ```
 
 
-Data Preparation
-Prepare your data in a specific format before using the functions. Ensure the data frame has two columns: Length and Frequency. Here's an example of how to load and prepare your data using the readxl package:
+### Data Preparation for Functions
+Prepare your collected data in a specific format (.xlsx or .csv) before using the functions. Here's an example of how to load and prepare your data using the readxl package:
+
+## Function (i): FrequencyTable
+This function will calculate the frequency table from the collected and also the extract the length frequency data from the frequency table with the upper length_range.
+
+### Arguments
+- **data**: A numeric vector or data frame of fish lengths. If a data frame is used, the first numeric column is selected.
+- **bin_width**: Optional. Numeric value for bin width; calculated automatically if left NULL. If not provided, the bin width is automatically calculated using Sturges' (1926) formula.
+
+
+### Example with provided data
 
 ```{r data_preparation}
+library(readxl)
+# Load your length data from the system file
+lenfreq_path <- system.file("exdata", "ExData.xlsx", package = "aLBI")
+print(lenfreq_path)  # Check the generated path
+
+if (lenfreq_path == "") {
+  stop("The required file ExData.xlsx is missing. Please check the inst/extdata directory.")
+}
+
+# load the lenght frequency data
+lenght_data <- readxl::read_excel(lenfreq_path)
+print(lenght_data)  # check the 
+# replace with your data directory
+
+
+```
+
+
+```{r FrequencyTable_Output}
+# Running the FrequencyTable function
+freqTable <- FrequencyTable(data = lenght_data, bin_width = NULL)
+
+# Viewing the results
+freqTable$lfqTable  # Display the frequency table
+freqTable$lfreq     # Display the summarized frequencies with upper length ranges
+
+```
+
+
+## Function (ii): FishPar
+The FishPar function estimates biological parameters such as Lmax, Linf, Lmat, and Lopt using bootstrapping resampling method.
+
+### Arguments
+- **data**: A data frame containing Length and Frequency columns.
+- **resample**: Number of bootstrap resamples. Default is 1000.
+- **progress**: Logical value indicating whether to show progress. Default is FALSE.
+
+
+### Example with existing data
+
+```{r data_example}
 library(readxl)
 # Load your length-frequency data from the system file
 lenfreq_path <- system.file("exdata", "LC.xlsx", package = "aLBI")
@@ -77,18 +145,8 @@ print(lenfreq_data)  # check the data
 # replace with your data directory
 ```
 
-Function: FishPar
-The FishPar function estimates biological parameters such as Lmax, Linf, Lmat, and Lopt using bootstrapping resampling method.
 
-Arguments
-
-data: A data frame containing Length and Frequency columns.
-resample: Number of bootstrap resamples. Default is 1000.
-progress: Logical value indicating whether to show progress. Default is FALSE.
-
-Example
-
-```{r FishPar_Example}
+```{r FishPar_Output}
 # Running the FishPar function
 results <- FishPar(data = lenfreq_data, resample = 1000, progress = FALSE)
 
@@ -102,7 +160,7 @@ results$Pobj
 
 ```
 
-Output
+### Explaination of Output
 The function returns a list with the following components:
 
 estimated_length_par: Data frame of estimated length parameters with confidence intervals.
@@ -113,17 +171,17 @@ LM_ratio: Length at maturity ratio.
 Pobj: Objective percentage combining Pmat, Popt, and Pmega.
 
 
-Function: FishSS
+## Function (iii): FishSS
 The FishSS function evaluates stock status using criteria based on the estimated parameters.
 
-Arguments
-data: A data frame of the stock status according to Cope and Punt (2009).
-LM_ratio: Length at maturity ratio from FishPar function.
-Pobj: Objective percentage from FishPar function.
-Pmat: Percentage of mature fish.
-Popt: Percentage of optimal fish.
+### Arguments
+- **data**: A data frame of the stock status according to Cope and Punt (2009).
+- **LM_ratio**: Length at maturity ratio from FishPar function.
+- **Pobj**: Objective percentage from FishPar function.
+- **Pmat**: Percentage of mature fish.
+- **Popt**: Percentage of optimal fish.
 
-Example
+### Example with CPdata
 
 ```{r FishSS_Example}
 # Load the stock status criteria data
@@ -151,27 +209,28 @@ stock_status
 
 
 
-Output
+### Output
 The function returns a named vector with TSB40 and LSB25 values indicating stock status.
 
-##Conclusion
+## Conclusion
 The Fish Stock Assessment package provides a robust framework for estimating biological parameters and assessing fish stock status. By following the steps outlined in this vignette, you can effectively utilize this package for your fish stock assessment needs.
 
-##Additional Information
-Contact
+## Additional Information
+### Contact
 For any questions or issues, please contact the package maintainer:
-
 Name: Ataher Ali
 Email: ataher.cu.ms@gmail.com
 
 
-##Acknowledgements
-I would like to thank the contributors and the community for their support and feedback.
+## Acknowledgements
+I would like to express my heartfelt gratitude to my supervisor, Dr. Mohammed Shahidul Alam, for his unwavering guidance, support, and encouragement. I am also sincerely thankful to the contributors and community members for their valuable feedback and support.
 
 This vignette provides a comprehensive guide to using the Assessment package. By following these instructions, users can effectively conduct fish stock assessments and contribute to sustainable fishery management practices.
 
 
 ## References
+- Sturges, H. A. (1926). The Choice of a Class Interval. *Journal of the American Statistical Association, 21*(153), 65–66. https://doi.org/10.1080/01621459.1926.10502161
+
 - Cope, J. M., & Punt, A. E. (2009). Length‐Based Reference Points for Data‐Limited Situations: Applications and Restrictions. *Marine and Coastal Fisheries, 1*(1), 169–186. https://doi.org/10.1577/C08-025.1
 
 - Froese, R. (2004). Keep it simple: Three indicators to deal with overfishing. *Fish and Fisheries, 5*(1), 86–91. https://doi.org/10.1111/j.1467-2979.2004.00144.x

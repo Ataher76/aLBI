@@ -1,6 +1,6 @@
-^.*\.Rproj$
-^\.Rproj\.user$
-^Example/\.RData$
-^\..*
 ^doc$
 ^Meta$
+^.*\.Rproj$
+^\.Rproj\.user$
+^CRAN-SUBMISSION$
+^cran-comments\.md$
