@@ -8,32 +8,35 @@
 provided, the first numeric column will be selected.}
 
 \item{bin_width}{(Optional) A numeric value specifying the bin width for class intervals. If not
-provided, the bin width is automatically calculated using Sturges' (1926) formula.}
+provided, the bin width is automatically calculated using either Wang's formula (default) or Sturges' formula.}
+
+\item{method}{(Optional) A character string specifying the method to calculate bin width if not provided.
+Options are "wang" (default) or "sturges".}
+
+\item{Lmax}{(Optional) The maximum observed length of fish. Required only if method = "wang" and bin_width is not provided.}
 }
 \value{
-A data frame with two columns: \code{Upper_Length} representing the upper boundary of each
-length class, and \code{Frequency} representing the count of observations within each class.
+A list containing two data frames:
+\item{lfqTable}{A frequency table with the length range and frequency.}
+\item{lfreq}{A table with the upper limits of bins and their frequencies.}
 }
 \description{
 This function creates a frequency distribution table for fish length data, allowing
-users to specify or calculate the ideal bin width based on Sturges' formula. The function returns
-a data frame containing the upper boundary of each length class and its associated frequency.
-}
-\details{
-The ideal bin width is calculated if not provided, based on Sturges' formula:
-\deqn{\text{Bin Width} = \frac{\text{Range}}{\text{Number of Classes}}} where the number of classes
-is determined as \eqn{1 + 3.322 \log_{10}(N)} for a dataset of size \eqn{N}.
+users to specify or calculate the ideal bin width based on Sturges' formula or the Wang formula.
+The function returns a data frame containing the upper boundary of each length class and its associated frequency.
 }
 \examples{
 # Generate random fish length data
 set.seed(123)
 fish_lengths <- data.frame(Length = runif(2000, min = 5, max = 70))
 
-# Create a frequency table with an automatically calculated bin width
+# Create a frequency table with Wang's formula (default)
 FrequencyTable(data = fish_lengths$Length)
 
-# Specify a bin width of 5 and generate a frequency table
+# Create a frequency table using Sturges' formula
+FrequencyTable(data = fish_lengths$Length, method = "sturges")
+
+# Specify a custom bin width
 FrequencyTable(data = fish_lengths$Length, bin_width = 5)
-utils::data("ExData", package = "aLBI")
 
 }
