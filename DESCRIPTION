@@ -1,7 +1,7 @@
 Package: aLBI
 Type: Package
 Title: Estimating Length-Based Indicators for Fish Stock
-Version: 0.1.6
+Version: 0.1.7
 Authors@R: c(
     person("Ataher", "Ali", email = "ataher.cu.ms@gmail.com", role = c("aut", "cre")),
     person("Mohammed Shahidul", "Alam", email = "alamms@cu.ac.bd", role = "aut"))

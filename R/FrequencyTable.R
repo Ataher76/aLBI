@@ -1,17 +1,16 @@
 #' Generate a Frequency Distribution Table for Fish Length Data
 #'
 #' @name FrequencyTable
-#' @description This function creates a frequency distribution table for fish length data, allowing
-#' users to specify or calculate the ideal bin width based on Sturges' formula or the Wang formula.
-#' The function returns a data frame containing the upper boundary of each length class and its associated frequency.
+#' @description This function creates a frequency distribution table for fish length data, using
+#' either a custom bin width or Wang's formula to calculate the ideal bin width. If the calculated
+#' bin width is a fraction, it is rounded to the nearest integer.
 #'
 #' @param data A numeric vector or data frame containing fish length measurements. If a data frame is
 #' provided, the first numeric column will be selected.
 #' @param bin_width (Optional) A numeric value specifying the bin width for class intervals. If not
-#' provided, the bin width is automatically calculated using either Wang's formula (default) or Sturges' formula.
-#' @param method (Optional) A character string specifying the method to calculate bin width if not provided.
-#' Options are "wang" (default) or "sturges".
-#' @param Lmax (Optional) The maximum observed length of fish. Required only if method = "wang" and bin_width is not provided.
+#' provided, the bin width is automatically calculated using Wang's formula.
+#' @param Lmax (Optional) The maximum observed length of fish. Required only if the maximum length is not provided
+#' and bin width is calculated using Wang's formula.
 #'
 #' @return A list containing two data frames:
 #' \item{lfqTable}{A frequency table with the length range and frequency.}
@@ -22,13 +21,10 @@
 #' set.seed(123)
 #' fish_lengths <- data.frame(Length = runif(2000, min = 5, max = 70))
 #'
-#' # Create a frequency table with Wang's formula (default)
+#' # Create a frequency table using Wang's formula (default)
 #' FrequencyTable(data = fish_lengths$Length)
 #'
-#' # Create a frequency table using Sturges' formula
-#' FrequencyTable(data = fish_lengths$Length, method = "sturges")
-#'
-#' # Specify a custom bin width
+#' # Create a frequency table with a custom bin width
 #' FrequencyTable(data = fish_lengths$Length, bin_width = 5)
 #'
 #' @export
@@ -36,7 +32,7 @@
 #' @importFrom dplyr %>% group_by summarise ungroup mutate
 utils::globalVariables(c("Length_Range", "Frequency", "Length"))
 
-FrequencyTable <- function(data, bin_width = NULL, method = "wang", Lmax = NULL) {
+FrequencyTable <- function(data, bin_width = NULL, Lmax = NULL) {
   # Validate input
   if (!is.numeric(data) && !is.data.frame(data)) {
     stop("Data must be a numeric vector or a data frame containing numeric values.")
@@ -59,22 +55,15 @@ FrequencyTable <- function(data, bin_width = NULL, method = "wang", Lmax = NULL)
 
   # Determine bin width if not provided
   if (is.null(bin_width)) {
-    if (method == "sturges") {
-      # Sturges' formula
-      num_classes <- ceiling(1 + 3.322 * log10(length(data)))
-      bin_width <- ceiling(range_data / num_classes)
-      message("Calculated bin width using Sturges' formula: ", bin_width)
-    } else if (method == "wang") {
-      # Optimum Bin Size (Wang) formula
-      if (is.null(Lmax)) {
-        Lmax <- max_length
-        message("Lmax not provided. Using maximum observed length: ", Lmax)
-      }
-      bin_width <- (0.23 * (Lmax^0.6))
-      message("Calculated bin width using Wang formula: ", round(bin_width, 2))
-    } else {
-      stop("Invalid method. Choose 'sturges' or 'wang'.")
+    if (is.null(Lmax)) {
+      Lmax <- max_length
+      message("Lmax not provided. Using maximum observed length: ", Lmax)
     }
+    actual_bin_width <- (0.23 * (Lmax^0.6))  # Calculate bin width using Wang's formula
+    rounded_bin_width <- ifelse(actual_bin_width %% 1 < 0.5, floor(actual_bin_width), ceiling(actual_bin_width))  # Round to nearest integer
+    message("Calculated actual bin width using Wang's formula: ", round(actual_bin_width, 2),
+            ", and the nearest round bin width: ", rounded_bin_width)
+    bin_width <- rounded_bin_width  # Use the rounded value for binning
   } else {
     message("Using custom bin width: ", bin_width)
   }

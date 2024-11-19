@@ -83,9 +83,9 @@ This function will calculate the frequency table from the collected and also the
 
 ### Arguments
 - **data**: A numeric vector or data frame of fish lengths. If a data frame is used, the first numeric column is selected.
-- **method**: Optional. 
+
 - **bin_width**: Optional. A numeric value specifying the bin width for class intervals, if left NULL or if not provided, the bin width is automatically calculated using Wang et al. (2020) optimum bin size (OBS) formula formula.
-- **method**: Optional. A character string specifying the method to calculate bin width. Options are "wang" (default) or "sturges". wang refers to the formula by Wang et al. (2020).
+
 -**Lmax**: Optional. The maximum observed length of fish. Required only if default method ("wang") is used and bin_width is not provided. If not provided or left NULL then automatically calculate the frequency table with the observed maximum length of the provided data.
 
 
@@ -112,7 +112,7 @@ print(lenght_data)  # check the
 
 ```{r FrequencyTable_Output}
 # Running the FrequencyTable function
-freqTable <- FrequencyTable(data = lenght_data, method = "wang", Lmax = 75)
+freqTable <- FrequencyTable(data = lenght_data, bin_width = NULL, Lmax = NULL)
 
 # Viewing the results
 freqTable$lfqTable  # Display the frequency table
@@ -234,8 +234,6 @@ This vignette provides a comprehensive guide to using the Assessment package. By
 ## References
 
 - Wang, K., Zhang, C., Xu, B., Xue, Y., & Ren, Y. (2020). Selecting optimal bin size to account for growth variability in Electronic LEngth Frequency ANalysis (ELEFAN). *Fisheries Research*, 225, 105474. https://doi.org/10.1016/j.fishres.2019.105474
-
-- Sturges, H. A. (1926). The Choice of a Class Interval. *Journal of the American Statistical Association, 21*(153), 65–66. https://doi.org/10.1080/01621459.1926.10502161
 
 - Cope, J. M., & Punt, A. E. (2009). Length‐Based Reference Points for Data‐Limited Situations: Applications and Restrictions. *Marine and Coastal Fisheries, 1*(1), 169–186. https://doi.org/10.1577/C08-025.1
 

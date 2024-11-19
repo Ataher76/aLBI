@@ -8,12 +8,10 @@
 provided, the first numeric column will be selected.}
 
 \item{bin_width}{(Optional) A numeric value specifying the bin width for class intervals. If not
-provided, the bin width is automatically calculated using either Wang's formula (default) or Sturges' formula.}
+provided, the bin width is automatically calculated using Wang's formula.}
 
-\item{method}{(Optional) A character string specifying the method to calculate bin width if not provided.
-Options are "wang" (default) or "sturges".}
-
-\item{Lmax}{(Optional) The maximum observed length of fish. Required only if method = "wang" and bin_width is not provided.}
+\item{Lmax}{(Optional) The maximum observed length of fish. Required only if the maximum length is not provided
+and bin width is calculated using Wang's formula.}
 }
 \value{
 A list containing two data frames:
@@ -21,22 +19,19 @@ A list containing two data frames:
 \item{lfreq}{A table with the upper limits of bins and their frequencies.}
 }
 \description{
-This function creates a frequency distribution table for fish length data, allowing
-users to specify or calculate the ideal bin width based on Sturges' formula or the Wang formula.
-The function returns a data frame containing the upper boundary of each length class and its associated frequency.
+This function creates a frequency distribution table for fish length data, using
+either a custom bin width or Wang's formula to calculate the ideal bin width. If the calculated
+bin width is a fraction, it is rounded to the nearest integer.
 }
 \examples{
 # Generate random fish length data
 set.seed(123)
 fish_lengths <- data.frame(Length = runif(2000, min = 5, max = 70))
 
-# Create a frequency table with Wang's formula (default)
+# Create a frequency table using Wang's formula (default)
 FrequencyTable(data = fish_lengths$Length)
 
-# Create a frequency table using Sturges' formula
-FrequencyTable(data = fish_lengths$Length, method = "sturges")
-
-# Specify a custom bin width
+# Create a frequency table with a custom bin width
 FrequencyTable(data = fish_lengths$Length, bin_width = 5)
 
 }
