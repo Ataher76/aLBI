@@ -1,96 +1,110 @@
-#' Calculate Length-Based Indicators for Fish Stock Assessment
-#'#'@importFrom graphics abline axis barplot box boxplot hist legend lines par rect segments text
-#' @importFrom stats complete.cases density loess predict quantile
+#' Calculate Length-Based Indicators with Monte Carlo Simulation
 #' @importFrom graphics abline axis barplot box boxplot hist legend lines par rect segments text
-#' @description This function calculates various length-based indicators for fish stock assessment
-#' using length frequency data and bootstrap resampling.
+#' @importFrom stats complete.cases density loess predict quantile rnorm
+#' @importFrom openxlsx write.xlsx
+#' @description This function calculates length-based indicators using Monte Carlo simulation for length parameters
+#' and non-parametric bootstrap for Froese indicators. Plots are displayed in the plot panel and saved as PDFs.
 #' @param data A data frame containing two columns: Length and Frequency.
-#' @param resample An integer indicating the number of bootstrap resamples.
+#' @param resample An integer indicating the number of Monte Carlo samples or bootstrap resamples.
 #' @param progress A logical value indicating whether to display progress.
-#' @return A list containing estimated length parameters, Froese indicators, and other relevant metrics.
-#' @examples
-#' data <- data.frame(Length = c(10, 20, 30, 40, 50), Frequency = c(5, 10, 15, 20, 25))
-#' FishPar(lenfreq01, 100, progress = FALSE)
-#' utils::data("lenfreq01", package = "aLBI")
-#' utils::data("lenfreq02", package = "aLBI")
+#' @param Linf A numeric value for the asymptotic length (optional). If provided, overrides the default Lmax/0.95 calculation.
+#' @param Linf_sd A numeric value for the standard deviation of random variation added to Linf (default: 0.5). Only used if Linf is provided.
+#' @param Lmat A numeric value for the length at maturity (optional). If provided, overrides the default Monte Carlo estimation.
+#' @param Lmat_sd A numeric value for the standard deviation of random variation added to Lmat (default: 0.5). Only used if Lmat is provided.
+#' @param display_plots A logical value indicating whether to display plots in the plot panel (default: TRUE).
+#' @return A list containing estimated length parameters, Froese indicators, and other metrics.
 #' @export
+FishParT <- function(data, resample, progress, Linf = NULL, Linf_sd = 0.5, Lmat = NULL, Lmat_sd = 0.5, display_plots = TRUE) {
+  # Load required package
+  if (!requireNamespace("openxlsx", quietly = TRUE)) install.packages("openxlsx")
+  library(openxlsx)
 
-FishPar <- function(data, resample, progress) {
+  # Save current par settings
+  oldpar <- par(no.readonly = TRUE)
 
-  oldpar <- par(no.readonly = TRUE)  # Save current par settings
-  on.exit(par(oldpar))  # Reset par settings when function exits
-  # Code that modifies par settings
-  par(mfrow = c(2, 2))
-
-  # Load necessary datasets within the function
-  utils::data("lenfreq01", package = "aLBI")
-  utils::data("lenfreq02", package = "aLBI")
-
-  # Check if it is a valid dataframe
+  # Check if input is a valid data frame
   if (!is.data.frame(data)) {
     stop("Input is not a data frame.")
   }
 
-  # Check if data frame is a list and convert into a data frame
-  if (is.list(data)) {
+  # Convert list to data frame if necessary
+  if (is.list(data) && !is.data.frame(data)) {
     data <- as.data.frame(data)
   }
 
+  # Ensure column names are Length and Frequency
   colnames(data)[1:2] <- c("Length", "Frequency")
 
-  # Check if the dataframe has exactly two columns
+  # Check if data frame has exactly two columns
   if (ncol(data) != 2) {
-    stop("The dataframe must have exactly two columns as Length and Frequency")
+    stop("The data frame must have exactly two columns: Length and Frequency")
   }
 
-  # cleaning the data or removing the NA values
+  # Remove NA values
   data <- data[complete.cases(data), ]
 
-
-  # Define a function to calculate parameters for confidence intervals
-  CalParCI <- function(data, Lmax) {
-    # Calculate Linf
-    Linf <- Lmax / 0.95
-    # Calculate Lmat
-    Lmat <- 10^(0.8979 * log10(Linf) - 0.0782)
-    # Calculate Lopt
-    Lopt <- 10^(1.053 * log10(Lmat) - 0.0565)
-    # Calculate Lopt_p10
-    Lopt_p10 <- Lopt + Lopt / 10
-    # Calculate Lopt_m10
-    Lopt_m10 <- Lopt - Lopt / 10
-    return(c(Lmax, Linf, Lmat, Lopt, Lopt_p10, Lopt_m10))
+  # Validate dataset
+  if (any(data$Frequency <= 0)) {
+    stop("Frequency column must contain positive values.")
+  }
+  if (nrow(data) < 2) {
+    stop("Data frame must have at least two rows for bootstrap resampling.")
+  }
+  if (length(unique(data$Length)) < 3) {
+    warning("Dataset has fewer than 3 unique Length values, which may lead to limited variability in estimates.")
+  }
+  max_freq <- max(data$Frequency)
+  if (max_freq / sum(data$Frequency) > 0.8) {
+    warning("A single Length value has more than 80% of total Frequency, which may reduce variability.")
   }
 
-  # Store parameter estimates and Froese indicators from bootstrap samples
-  parameter_estimates <- matrix(NA, nrow = resample, ncol = 6)
-  froese_indicators <- matrix(NA, nrow = resample, ncol = 3)  # For Pmat, Popt, Pmega
-  frequency_sums <- matrix(NA, nrow = resample, ncol = 4)
+  # Determine Lmax and Linf based on provided Linf
+  if (!is.null(Linf)) {
+    Linf_samples <- rep(Linf, resample) + rnorm(resample, mean = 0, sd = Linf_sd)
+    Lmax_samples <- Linf_samples / 0.95  # Generate Lmax_samples from Linf_samples
+    Lmax <- mean(Lmax_samples)  # Mean Lmax for reference
+  } else {
+    Lmax <- max(data$Length)
+    Lmax_samples <- rnorm(resample, mean = Lmax, sd = 1)
+    Lmax_samples <- pmin(pmax(Lmax_samples, Lmax * 0.9), Lmax * 1.1)
+    Linf_samples <- Lmax_samples / 0.95
+  }
 
-  # Perform bootstrap resampling
-  if (progress) pb <- utils::txtProgressBar(min = 0, max = resample, style = 1)
+  # Use user-provided Lmat if available, otherwise estimate with Monte Carlo
+  if (!is.null(Lmat)) {
+    Lmat_samples <- rep(Lmat, resample) + rnorm(resample, mean = 0, sd = Lmat_sd)
+  } else {
+    Lmat_samples <- 10^(0.8979 * log10(Linf_samples) + rnorm(resample, -0.0782, 0.015))
+  }
+
+  # Calculate Lopt_samples based on Lmat_samples
+  Lopt_samples <- 10^(1.053 * log10(Lmat_samples) + rnorm(resample, -0.0565, 0.015))
+  Lopt_p10_samples <- Lopt_samples + Lopt_samples / 10
+  Lopt_m10_samples <- Lopt_samples - Lopt_samples / 10
+  parameter_estimates <- cbind(Lmax_samples, Linf_samples, Lmat_samples, Lopt_samples, Lopt_p10_samples, Lopt_m10_samples)
+
+  # Non-parametric bootstrap for Froese indicators
+  froese_indicators <- matrix(NA, nrow = resample, ncol = 3)
+  frequency_sums <- matrix(NA, nrow = resample, ncol = 4)
+  expanded_data <- data[rep(1:nrow(data), times = pmax(1, round(data$Frequency))), ]
+
+  if (progress) pb <- utils::txtProgressBar(min = 0, max = resample, style = 3)
 
   for (i in 1:resample) {
-    # Generate bootstrap sample
-    bootstrap_sample <- data[sample(nrow(data), replace = TRUE), ]
+    bootstrap_sample_np <- expanded_data[sample(nrow(expanded_data), size = sum(data$Frequency), replace = TRUE), ]
+    parameters <- parameter_estimates[i, ]
 
-    # Calculate Lmax for the bootstrap sample
-    Lmax_bootstrap <- max(bootstrap_sample[[1]])
-    # Calculate length parameters
-    parameters <- CalParCI(bootstrap_sample, Lmax_bootstrap)
-    parameter_estimates[i, ] <- parameters
+    sumT <- sum(bootstrap_sample_np$Frequency)
+    sum_mat <- sum(ifelse(bootstrap_sample_np$Length >= parameters[3] & bootstrap_sample_np$Length <= parameters[1], bootstrap_sample_np$Frequency, 0))
+    sum_opt <- sum(ifelse(bootstrap_sample_np$Length >= parameters[6] & bootstrap_sample_np$Length <= parameters[5], bootstrap_sample_np$Frequency, 0))
+    sum_mega <- sum(ifelse(bootstrap_sample_np$Length >= parameters[5] & bootstrap_sample_np$Length <= parameters[1], bootstrap_sample_np$Frequency, 0))
 
-    # Calculate Froese indicators
-    sumT <- sum(bootstrap_sample[[2]])
-    sum_mat <- sum(ifelse(data[[1]] >= parameters[3] & data[[1]] <= parameters[1], data[[2]], 0))
-    sum_opt <- sum(ifelse(data[[1]] >= parameters[6] & data[[1]] <= parameters[5], data[[2]], 0))
-    sum_mega <- sum(ifelse(data[[1]] >= parameters[5] & data[[1]] <= parameters[1], data[[2]], 0))
+    frequency_sums[i, ] <- c(sumT, sum_mat, sum_opt, sum_mega)
 
-    frequency_sums[i, ] <- c(sumT, sum_mat, sum_opt, sum_mega)  # Store frequency sums
-    # Calculate sum_mat and Pmat
-    Pmat <- (sum_mat / sumT) * 100
-    Popt <- (sum_opt / sumT) * 100
-    Pmega <- (sum_mega / sumT) * 100
+    Pmat <- pmin(100, pmax(0, ifelse(sumT > 0, (sum_mat / sumT) * 100, 0)))
+    Popt <- pmin(100, pmax(0, ifelse(sumT > 0, (sum_opt / sumT) * 100, 0)))
+    Pmega <- pmin(100, pmax(0, ifelse(sumT > 0, (sum_mega / sumT) * 100, 0)))
+
     froese_indicators[i, ] <- c(Pmat, Popt, Pmega)
 
     if (progress) utils::setTxtProgressBar(pb, i)
@@ -99,99 +113,35 @@ FishPar <- function(data, resample, progress) {
   if (progress) close(pb)
 
   # Calculate means and confidence intervals
-  mean_freq_sums <- apply(frequency_sums, 2, mean)
-  lower_freq_sums <- apply(frequency_sums, 2, function(x) quantile(x, probs = 0.025))
-  upper_freq_sums <- apply(frequency_sums, 2, function(x) quantile(x, probs = 0.975))
+  mean_estimates <- apply(parameter_estimates, 2, mean, na.rm = TRUE)
+  lower_bound <- apply(parameter_estimates, 2, function(x) quantile(x, probs = 0.025, na.rm = TRUE))
+  upper_bound <- apply(parameter_estimates, 2, function(x) quantile(x, probs = 0.975, na.rm = TRUE))
 
-  # Create data frame for frequency sums
-  estimated_freq_par <- data.frame(
-    Parameter = c("sumT", "sum_mat", "sum_opt", "sum_mega"),
-    Mean = mean_freq_sums,
-    Lower_CI = lower_freq_sums,
-    Upper_CI = upper_freq_sums
-  )
+  mean_froese <- apply(froese_indicators, 2, mean, na.rm = TRUE)
+  lower_froese <- apply(froese_indicators, 2, function(x) pmax(0, quantile(x, probs = 0.025, na.rm = TRUE)))
+  upper_froese <- apply(froese_indicators, 2, function(x) pmin(100, quantile(x, probs = 0.975, na.rm = TRUE)))
 
-  # Calculate mean and confidence intervals of bootstrap estimates
-  mean_estimates <- apply(parameter_estimates, 2, mean)
-  lower_bound <- apply(parameter_estimates, 2, function(x) quantile(x, probs = 0.025))
-  upper_bound <- apply(parameter_estimates, 2, function(x) quantile(x, probs = 0.975))
+  mean_freq_sums <- apply(frequency_sums, 2, mean, na.rm = TRUE)
+  lower_freq_sums <- apply(frequency_sums, 2, function(x) quantile(x, probs = 0.025, na.rm = TRUE))
+  upper_freq_sums <- apply(frequency_sums, 2, function(x) quantile(x, probs = 0.975, na.rm = TRUE))
 
-  # Calculate mean and confidence intervals of bootstrap froese indicators estimates
-  mean_froese <- apply(froese_indicators, 2, mean)
-  lower_froese <- apply(froese_indicators, 2, function(x) quantile(x, probs = 0.025))
-  upper_froese <- apply(froese_indicators, 2, function(x) quantile(x, probs = 0.975))
-
-
-  #Some note and extracted length parameters
+  # Extract parameters
   Lmax <- mean_estimates[1]
   Linf <- mean_estimates[2]
   Lmat <- mean_estimates[3]
   Lopt <- mean_estimates[4]
   Lopt_p10 <- mean_estimates[5]
   Lopt_m10 <- mean_estimates[6]
-  # extracting froese indicators
+
   Pmat <- mean_froese[1]
   Popt <- mean_froese[2]
   Pmega <- mean_froese[3]
 
-  #Calculating Pobj
-  Pobj <- sum(Pmat + Popt + Pmega)
-  # counting total number of sample
-  Tsample <- sum(data[[2]])
-  # Calculating the length at maturity ratio from the mean_estimated
-  LM_ratio <-  (Lmat / Lopt)
+  Pobj <- sum(Pmat, Popt, Pmega)
+  LM_ratio <- Lmat / Lopt
 
-  # Plotting the frequency of bootstrapped resampled data for each parameter
-  # Save the plots to a directory
-
-  par(mfrow = c(1,3)) # Setting up a 1x3 grid for the froese plots
-
-  froese_names <- c("Pmat", "Popt", "Pmega")
-  # histogram
-  for(i in 1:3){
-    hist(froese_indicators[,i], main = froese_names[i], xlab = froese_names[i], ylab = "Frequency", col = "lightblue")
-    abline(v = mean_froese[i], col = "red", lwd = 2)
-    segments(lower_froese[i], 0, lower_froese[i], max(hist(froese_indicators[, i], plot = FALSE)$counts), col = "black", lwd = 2, lty = "dotted" )
-    segments(upper_froese[i], 0, upper_froese[i], max(hist(froese_indicators[, i], plot = FALSE)$counts), col = "black", lwd = 2, lty = "dotted" )
-  }
-
-  # density plot
-  for(i in 1:3){
-    dens <- density(froese_indicators[, i])
-    plot(dens, main= froese_names[i], col="blue", lwd=1.5, xlim=c(min(froese_indicators[,i]), max(froese_indicators[,i])))
-    abline(v = mean_froese[i], col = "red", lwd = 2)
-    segments(lower_froese[i], 0, lower_froese[i], max(hist(froese_indicators[, i], plot = FALSE)$counts), col = "black", lwd = 2, lty = "dotted" )
-    segments(upper_froese[i], 0, upper_froese[i], max(hist(froese_indicators[, i], plot = FALSE)$counts), col = "black", lwd = 2, lty = "dotted" )
-  }
-
-
-  par(mfrow=c(2, 3)) # Setting up a 2x3 grid for the plots
-
+  # Create data frames with clean parameter names
   parameter_names <- c("Lmax", "Linf", "Lmat", "Lopt", "Lopt_p10", "Lopt_m10")
-
-  for (i in 1:6) {
-    hist(parameter_estimates[,i], main=parameter_names[i], xlab=parameter_names[i], ylab="Frequency", col="lightblue" )
-    abline(v = mean_estimates[i], col = "red", lwd = 2)
-    #segments(mean_estimates[i], 0, mean_estimates[i], max(hist(parameter_estimates[, i], plot = FALSE)$counts), col = "red2", lwd = 2)
-    segments(lower_bound[i], 0, lower_bound[i], max(hist(parameter_estimates[, i], plot = FALSE)$counts), col = "black", lwd = 2, lty = "dotted" )
-    segments(upper_bound[i], 0, upper_bound[i], max(hist(parameter_estimates[, i], plot = FALSE)$counts), col = "black", lwd = 2, lty = "dotted" )
-
-  }
-
-  #par(mfrow=c(2, 3)) # Setting up another 2x3 grid for the density plots
-
-  for (i in 1:6) {
-    dens <- density(parameter_estimates[,i])
-    plot(dens, main=parameter_names[i], col="blue", lwd=1.5, xlim=c(min(parameter_estimates[,i]), max(parameter_estimates[,i])))
-    abline(v = mean_estimates[i], col = "red", lwd = 2)
-    #segments(lower_bound[i], 0, mean_estimates[i], max(dens$y), col = "yellow3", lwd = 1.5 )
-    segments(lower_bound[i], 0, lower_bound[i], max(dens$y), col = "black", lwd = 2, lty = "dotted" )
-    segments(upper_bound[i], 0, upper_bound[i], max(dens$y), col = "black", lwd = 2, lty = "dotted" )
-
-  }
-
-
-  # Create data frames for parameter estimates and confidence intervals
   estimated_length_par <- data.frame(
     Parameters = parameter_names,
     Mean_estimate = mean_estimates,
@@ -199,115 +149,20 @@ FishPar <- function(data, resample, progress) {
     Upper_CI = upper_bound
   )
 
-  #Creating boxplot with this dataframe
-
-  # Reshape the data into long format
-  # Create an empty dataframe to store the long format
-  long_df <- data.frame(Parameters = character(),
-                        Interval = character(),
-                        Value = numeric(),
-                        stringsAsFactors = FALSE)
-
-  # Create a list to store each subset of the dataframe
-  df_list <- list(estimated_length_par$Parameters,
-                  estimated_length_par$Parameters,
-                  estimated_length_par$Parameters)
-  names(df_list) <- c("Mean_estimate", "Lower_CI", "Upper_CI")
-
-  # Populate the long dataframe
-  for (i in names(df_list)) {
-    long_df <- rbind(long_df, data.frame(Parameters = df_list[[i]],
-                                         Interval = rep(i, nrow(estimated_length_par)),
-                                         Value = estimated_length_par[[i]],
-                                         stringsAsFactors = FALSE))
-  }
-
-  #Converting the order of my parameters as i want
-  long_df$Parameters <- factor(long_df$Parameters, levels = parameter_names)
-
-  par(mfrow = c(1,1))
-  # Create boxplot
-  boxplot(Value ~ Parameters,
-          data = long_df,
-          main = "Estimated Length Parameters",
-          xlab = "Length Parameters",
-          ylab = "Length (cm)",
-          col = "lightblue",
-          border = "black",
-          notch = FALSE,
-          #names = parameter_names,
-          ylim = range(c(long_df$Value))
-
-  )
-
-
-  # for froese indicators in the same way as the estimated lenght parameters
-  froese_estimates <- data.frame(
+  froese_names <- c("Pmat", "Popt", "Pmega")
+  estimated_froese_par <- data.frame(
     Parameters = froese_names,
     Mean_froese = mean_froese,
     Lower_CI = lower_froese,
     Upper_CI = upper_froese
   )
 
-  #Creating boxplot with this dataframe
-  # Reshape the data into long format
-  # Create an empty dataframe to store the long format
-  long_df_froese <- data.frame(Parameters = character(),
-                               Interval = character(),
-                               Value = numeric(),
-                               stringsAsFactors = FALSE)
-
-  # Create a list to store each subset of the dataframe
-  df_list_froese <- list(froese_estimates$Parameters,
-                         froese_estimates$Parameters,
-                         froese_estimates$Parameters)
-  names(df_list_froese) <- c("Mean_froese", "Lower_CI", "Upper_CI")
-
-  # Populate the long dataframe
-  for (i in names(df_list_froese)) {
-    long_df_froese <- rbind(long_df_froese, data.frame(Parameters = df_list_froese[[i]],
-                                                       Interval = rep(i, nrow(froese_estimates)),
-                                                       Value = froese_estimates[[i]],
-                                                       stringsAsFactors = FALSE))
-  }
-
-  #Converting the order of my parameters as i want
-  long_df_froese$Parameters <- factor(long_df_froese$Parameters, levels = froese_names)
-
-  par(mfrow = c(1,1))
-  # Create boxplot
-  boxplot(Value ~ Parameters,
-          data = long_df_froese,
-          main = "Estimated Froese Sustainability Indicators",
-          xlab = "Froese Indicators",
-          ylab = "Percentage (%)",
-          col = "lightblue",
-          border = "black",
-          notch = FALSE,
-          #names = parameter_names,
-          ylim = range(c(long_df_froese$Value))
-
+  estimated_freq_sums <- data.frame(
+    Parameter = c("sumT", "sum_mat", "sum_opt", "sum_mega"),
+    Mean = mean_freq_sums,
+    Lower_CI = lower_freq_sums,
+    Upper_CI = upper_freq_sums
   )
-
-
-  #1. First graph of frequency distribution for length frequency data
-  par( mfrow = c(1,1))
-
-  barplot(data[[2]] ~ data[[1]],
-          main = "Lenght Frequency Plot",
-          xlab = "Length Class",
-          ylab = "Frequency",
-          ylim = c(0 , max(data[[2]]*1.2)),
-          col= "#69b3a2")
-
-  #geom_histogram(aes(x = mult, y = ..density..), fill = "lightblue")
-  values <- loess(data[[2]] ~ data[[1]])
-  lines(predict(values), col = "red", lwd = 2)
-  legend( "topright", legend = c("Observed frequency", "Modelled frequency"), col = c("#69b3a2" , "red"),
-          pch = c(15, NA), lty = c(NA, 1), cex = 1 , lwd = 2, seg.len = 1.5 )
-
-
-  #Creating the data frame froese indicator vs target
 
   forese_ind_vs_target <- data.frame(
     Parameters = froese_names,
@@ -315,57 +170,233 @@ FishPar <- function(data, resample, progress) {
     Froese_tar = c(100, 100, 20)
   )
 
-  #2.Making the second barplot of Froese indicators and target
-  barplot(rbind(forese_ind_vs_target[[3]], forese_ind_vs_target[[2]]), beside = TRUE,
-          names.arg = forese_ind_vs_target[[1]], col = c("#69b3a2" , "#404080"),
-          main = "Target vs Catch", xlab = "Froese Length Indicators",
-          ylab = "Percentage (%)"
+  # Create output list before plots
+  output_list <- list(
+    Length_Parameters = estimated_length_par,
+    Froese_Indicators = estimated_froese_par,
+    Target_vs_Catch = forese_ind_vs_target
   )
-  legend( "topright", legend = c("Target", "Catch"), fill = c("#69b3a2" , "#404080"))
 
+  # Display plots in plot panel if requested
+  if (display_plots) {
+    # Initialize new graphics device if needed
+    if (dev.cur() == 1) dev.new()
 
-  #3. Main graph with frequency distribution and corresponding lengths
-  par(mfrow = c(2,3))
-
-  for(i in 1:6){
-
-    plot(data[[1]], data[[2]], type = "l", lwd = 1.8, main = parameter_names[i] ,
-         xlab = "Length Class (cm)", ylab = "Frequency",
-         ylim = c(0, max(data[[2]]+100)), xlim = c(0, max(data[[1]]+2)))
-    box(col = "white")
-    axis(side = 1, lwd = 1.5)
-    axis(side = 2, lwd = 1.5)
-
-    abline(v = mean_estimates[i], col = "red", lwd = 2)
-    #segments(mean_estimates[i], 0, mean_estimates[i], max(hist(parameter_estimates[, i], plot = FALSE)$counts), col = "red2", lwd = 2)
-    segments(lower_bound[i], 0, lower_bound[i], max(hist(parameter_estimates[, i], plot = FALSE)$counts), col = "black", lwd = 2, lty = "dotted" )
-    segments(upper_bound[i], 0, upper_bound[i], max(hist(parameter_estimates[, i], plot = FALSE)$counts), col = "black", lwd = 2, lty = "dotted" )
-    # Setting the Optimum sized fish as a rectangle box
-    if( i == 4){
-      rect(xleft = Lopt_m10, ybottom = 0, xright = Lopt_p10, ytop = max(data[[2]]), col = "#69b3a2")
-
-      #Adding text as Lopt
-      #text(x = Lopt, y = max(data[[2]]+20), labels = "Lopt", col = "red3", cex = 1)
-      #Adding the Optimum size text in Lopt rect
-      text(x = Lopt, y = max(data[[2]]), labels = "Optimum\nsize", col = "red3", cex = 0.8)
+    # Froese Indicators Histograms
+    par(mfrow = c(1, 3))
+    for (i in 1:3) {
+      hist(froese_indicators[, i], main = froese_names[i], xlab = "Percentage", ylab = "Frequency", col = "lightblue")
+      abline(v = mean_froese[i], col = "red", lwd = 2)
+      segments(lower_froese[i], 0, lower_froese[i], max(hist(froese_indicators[, i], plot = FALSE)$counts), col = "black", lty = "dashed")
+      segments(upper_froese[i], 0, upper_froese[i], max(hist(froese_indicators[, i], plot = FALSE)$counts), col = "black", lty = "dashed")
     }
-    #Adding text for Juveniles
-    text(x = mean(c(5, Lmat)), y = 100, labels = "Juveniles", col = "red3", cex = 0.8)
-    #Adding text for Mega spawners
-    text(x = mean(c(Lopt_m10 , Lmax)), y = 100, labels = "Mega-\nspawners", col = "red3", cex = 0.8)
+
+    # Froese Indicators Density
+    par(mfrow = c(1, 3))
+    for (i in 1:3) {
+      dens <- density(froese_indicators[, i], na.rm = TRUE)
+      plot(dens, main = froese_names[i], col = "blue", lwd = 1.5, xlab = "Percentage", ylab = "Density")
+      abline(v = mean_froese[i], col = "red", lwd = 2)
+      segments(lower_froese[i], 0, lower_froese[i], max(dens$y), col = "black", lty = "dashed")
+      segments(upper_froese[i], 0, upper_froese[i], max(dens$y), col = "black", lty = "dashed")
+    }
+
+    # Length Parameters Histograms
+    par(mfrow = c(2, 3))
+    for (i in 1:6) {
+      hist(parameter_estimates[, i], main = parameter_names[i], xlab = "Length (cm)", ylab = "Frequency", col = "lightblue")
+      abline(v = mean_estimates[i], col = "red", lwd = 2)
+      segments(lower_bound[i], 0, lower_bound[i], max(hist(parameter_estimates[, i], plot = FALSE)$counts), col = "black", lty = "dashed")
+      segments(upper_bound[i], 0, upper_bound[i], max(hist(parameter_estimates[, i], plot = FALSE)$counts), col = "black", lty = "dashed")
+    }
+
+    # Length Parameters Density
+    par(mfrow = c(2, 3))
+    for (i in 1:6) {
+      dens <- density(parameter_estimates[, i], na.rm = TRUE)
+      plot(dens, main = parameter_names[i], col = "blue", lwd = 1.5, xlab = "Length (cm)", ylab = "Density")
+      abline(v = mean_estimates[i], col = "red", lwd = 2)
+      segments(lower_bound[i], 0, lower_bound[i], max(dens$y), col = "black", lty = "dashed")
+      segments(upper_bound[i], 0, upper_bound[i], max(dens$y), col = "black", lty = "dashed")
+    }
+
+    # Length Parameters Boxplot
+    par(mfrow = c(1, 1))
+    long_df <- data.frame(
+      Parameters = rep(parameter_names, 3),
+      Interval = rep(c("Mean", "Lower_CI", "Upper_CI"), each = 6),
+      Value = c(mean_estimates, lower_bound, upper_bound)
+    )
+    long_df$Parameters <- factor(long_df$Parameters, levels = parameter_names)
+    boxplot(Value ~ Parameters, data = long_df, main = "Estimated Length Parameters",
+            xlab = "Parameters", ylab = "Length (cm)", col = "lightblue", border = "black")
+
+    # Froese Indicators Boxplot
+    par(mfrow = c(1, 1))
+    long_df_froese <- data.frame(
+      Parameters = rep(froese_names, 3),
+      Interval = rep(c("Mean", "Lower_CI", "Upper_CI"), each = 3),
+      Value = c(mean_froese, lower_froese, upper_froese)
+    )
+    long_df_froese$Parameters <- factor(long_df_froese$Parameters, levels = froese_names)
+    boxplot(Value ~ Parameters, data = long_df_froese, main = "Froese Sustainability Indicators",
+            xlab = "Indicators", ylab = "Percentage (%)", col = "lightblue", border = "black")
+
+    # Length Frequency Plot
+    par(mfrow = c(1, 1))
+    barplot(data$Frequency ~ data$Length, main = "Length Frequency Distribution",
+            xlab = "Length Class (cm)", ylab = "Frequency", ylim = c(0, max(data$Frequency) * 1.2), col = "#69b3a2")
+    values <- loess(data$Frequency ~ data$Length)
+    lines(predict(values), col = "red", lwd = 2)
+    legend("topright", legend = c("Observed", "Smoothed"), col = c("#69b3a2", "red"), pch = c(15, NA), lty = c(NA, 1), lwd = 2)
+
+    # Target vs Catch Barplot
+    par(mfrow = c(1, 1))
+    barplot(rbind(forese_ind_vs_target$Froese_tar, forese_ind_vs_target$Froese_catch), beside = TRUE,
+            names.arg = forese_ind_vs_target$Parameters, col = c("#69b3a2", "#404080"),
+            main = "Target vs Catch Comparison", xlab = "Froese Indicators", ylab = "Percentage (%)")
+    legend("topright", legend = c("Target", "Catch"), fill = c("#69b3a2", "#404080"))
+
+    # Main Graph Annotations
+    par(mfrow = c(2, 3))
+    for (i in 1:6) {
+      plot(data$Length, data$Frequency, type = "l", lwd = 1.8, main = parameter_names[i],
+           xlab = "Length Class (cm)", ylab = "Frequency",
+           ylim = c(0, max(data$Frequency) * 1.2), xlim = c(0, max(data$Length) * 1.05))
+      abline(v = mean_estimates[i], col = "red", lwd = 2)
+      segments(lower_bound[i], 0, lower_bound[i], max(data$Frequency) * 1.2, col = "black", lty = "dashed")
+      segments(upper_bound[i], 0, upper_bound[i], max(data$Frequency) * 1.2, col = "black", lty = "dashed")
+      if (i == 4) {
+        rect(xleft = Lopt_m10, ybottom = 0, xright = Lopt_p10, ytop = max(data$Frequency),
+             col = rgb(105/255, 179/255, 162/255, alpha = 0.3), border = NA)
+        text(x = Lopt, y = max(data$Frequency), labels = "Optimum\nSize", col = "red3", cex = 0.8)
+      }
+      text(x = mean(c(5, Lmat)), y = max(data$Frequency) * 0.9, labels = "Juveniles", col = "red3", cex = 0.8)
+      text(x = mean(c(Lopt_m10, Lmax)), y = max(data$Frequency) * 0.9, labels = "Mega-\nSpawners", col = "red3", cex = 0.8)
+    }
   }
 
+  # Save plots to PDF files
+  pdf("Froese_Indicators_Histograms.pdf", width = 10, height = 4)
+  par(mfrow = c(1, 3))
+  for (i in 1:3) {
+    hist(froese_indicators[, i], main = froese_names[i], xlab = "Percentage", ylab = "Frequency", col = "lightblue")
+    abline(v = mean_froese[i], col = "red", lwd = 2)
+    segments(lower_froese[i], 0, lower_froese[i], max(hist(froese_indicators[, i], plot = FALSE)$counts), col = "black", lty = "dashed")
+    segments(upper_froese[i], 0, upper_froese[i], max(hist(froese_indicators[, i], plot = FALSE)$counts), col = "black", lty = "dashed")
+  }
+  dev.off()
 
+  pdf("Froese_Indicators_Density.pdf", width = 10, height = 4)
+  par(mfrow = c(1, 3))
+  for (i in 1:3) {
+    dens <- density(froese_indicators[, i], na.rm = TRUE)
+    plot(dens, main = froese_names[i], col = "blue", lwd = 1.5, xlab = "Percentage", ylab = "Density")
+    abline(v = mean_froese[i], col = "red", lwd = 2)
+    segments(lower_froese[i], 0, lower_froese[i], max(dens$y), col = "black", lty = "dashed")
+    segments(upper_froese[i], 0, upper_froese[i], max(dens$y), col = "black", lty = "dashed")
+  }
+  dev.off()
 
+  pdf("Length_Parameters_Histograms.pdf", width = 10, height = 6)
+  par(mfrow = c(2, 3))
+  for (i in 1:6) {
+    hist(parameter_estimates[, i], main = parameter_names[i], xlab = "Length (cm)", ylab = "Frequency", col = "lightblue")
+    abline(v = mean_estimates[i], col = "red", lwd = 2)
+    segments(lower_bound[i], 0, lower_bound[i], max(hist(parameter_estimates[, i], plot = FALSE)$counts), col = "black", lty = "dashed")
+    segments(upper_bound[i], 0, upper_bound[i], max(hist(parameter_estimates[, i], plot = FALSE)$counts), col = "black", lty = "dashed")
+  }
+  dev.off()
 
-  # Return the data frames
-  return(list(
+  pdf("Length_Parameters_Density.pdf", width = 10, height = 6)
+  par(mfrow = c(2, 3))
+  for (i in 1:6) {
+    dens <- density(parameter_estimates[, i], na.rm = TRUE)
+    plot(dens, main = parameter_names[i], col = "blue", lwd = 1.5, xlab = "Length (cm)", ylab = "Density")
+    abline(v = mean_estimates[i], col = "red", lwd = 2)
+    segments(lower_bound[i], 0, lower_bound[i], max(dens$y), col = "black", lty = "dashed")
+    segments(upper_bound[i], 0, upper_bound[i], max(dens$y), col = "black", lty = "dashed")
+  }
+  dev.off()
+
+  pdf("Length_Parameters_Boxplot.pdf", width = 8, height = 6)
+  par(mfrow = c(1, 1))
+  long_df <- data.frame(
+    Parameters = rep(parameter_names, 3),
+    Interval = rep(c("Mean", "Lower_CI", "Upper_CI"), each = 6),
+    Value = c(mean_estimates, lower_bound, upper_bound)
+  )
+  long_df$Parameters <- factor(long_df$Parameters, levels = parameter_names)
+  boxplot(Value ~ Parameters, data = long_df, main = "Estimated Length Parameters",
+          xlab = "Parameters", ylab = "Length (cm)", col = "lightblue", border = "black")
+  dev.off()
+
+  pdf("Froese_Indicators_Boxplot.pdf", width = 8, height = 6)
+  par(mfrow = c(1, 1))
+  long_df_froese <- data.frame(
+    Parameters = rep(froese_names, 3),
+    Interval = rep(c("Mean", "Lower_CI", "Upper_CI"), each = 3),
+    Value = c(mean_froese, lower_froese, upper_froese)
+  )
+  long_df_froese$Parameters <- factor(long_df_froese$Parameters, levels = froese_names)
+  boxplot(Value ~ Parameters, data = long_df_froese, main = "Froese Sustainability Indicators",
+          xlab = "Indicators", ylab = "Percentage (%)", col = "lightblue", border = "black")
+  dev.off()
+
+  pdf("Length_Frequency_Plot.pdf", width = 8, height = 6)
+  par(mfrow = c(1, 1))
+  barplot(data$Frequency ~ data$Length, main = "Length Frequency Distribution",
+          xlab = "Length Class (cm)", ylab = "Frequency", ylim = c(0, max(data$Frequency) * 1.2), col = "#69b3a2")
+  values <- loess(data$Frequency ~ data$Length)
+  lines(predict(values), col = "red", lwd = 2)
+  legend("topright", legend = c("Observed", "Smoothed"), col = c("#69b3a2", "red"), pch = c(15, NA), lty = c(NA, 1), lwd = 2)
+  dev.off()
+
+  pdf("Target_vs_Catch_Barplot.pdf", width = 8, height = 6)
+  par(mfrow = c(1, 1))
+  barplot(rbind(forese_ind_vs_target$Froese_tar, forese_ind_vs_target$Froese_catch), beside = TRUE,
+          names.arg = forese_ind_vs_target$Parameters, col = c("#69b3a2", "#404080"),
+          main = "Target vs Catch Comparison", xlab = "Froese Indicators", ylab = "Percentage (%)")
+  legend("topright", legend = c("Target", "Catch"), fill = c("#69b3a2", "#404080"))
+  dev.off()
+
+  pdf("Main_Graph_Annotations.pdf", width = 10, height = 6)
+  par(mfrow = c(2, 3))
+  for (i in 1:6) {
+    plot(data$Length, data$Frequency, type = "l", lwd = 1.8, main = parameter_names[i],
+         xlab = "Length Class (cm)", ylab = "Frequency",
+         ylim = c(0, max(data$Frequency) * 1.2), xlim = c(0, max(data$Length) * 1.05))
+    abline(v = mean_estimates[i], col = "red", lwd = 2)
+    segments(lower_bound[i], 0, lower_bound[i], max(data$Frequency) * 1.2, col = "black", lty = "dashed")
+    segments(upper_bound[i], 0, upper_bound[i], max(data$Frequency) * 1.2, col = "black", lty = "dashed")
+    if (i == 4) {
+      rect(xleft = Lopt_m10, ybottom = 0, xright = Lopt_p10, ytop = max(data$Frequency),
+           col = rgb(105/255, 179/255, 162/255, alpha = 0.3), border = NA)
+      text(x = Lopt, y = max(data$Frequency), labels = "Optimum\nSize", col = "red3", cex = 0.8)
+    }
+    text(x = mean(c(5, Lmat)), y = max(data$Frequency) * 0.9, labels = "Juveniles", col = "red3", cex = 0.8)
+    text(x = mean(c(Lopt_m10, Lmax)), y = max(data$Frequency) * 0.9, labels = "Mega-\nSpawners", col = "red3", cex = 0.8)
+  }
+  dev.off()
+
+  # Save outputs to Excel with overwrite check
+  if (file.exists("FishPar_Outputs.xlsx")) {
+    warning("Overwriting existing FishPar_Outputs.xlsx. Use a different filename or remove the existing file to avoid this.")
+  }
+  write.xlsx(output_list, file = "FishPar_Outputs.xlsx", rowNames = FALSE)
+
+  # Restore par settings and return results
+  par(oldpar)
+  result <- list(
     estimated_length_par = estimated_length_par,
-    estimated_froese_par = froese_estimates,
-    #estimated_freq_par = estimated_freq_par,
+    estimated_froese_par = estimated_froese_par,
     forese_ind_vs_target = forese_ind_vs_target,
     LM_ratio = LM_ratio,
     Pobj = Pobj
-  ))
+  )
+  return(result)
 }
+
+
+
 

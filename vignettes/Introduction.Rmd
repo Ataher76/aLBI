@@ -156,8 +156,8 @@ results <- FishPar(data = lenfreq_data, resample = 1000, progress = FALSE)
 # Viewing the results
 results$estimated_length_par
 results$estimated_froese_par
-results$estimated_freq_par
 results$forese_ind_vs_target
+results$Total_ind
 results$LM_ratio
 results$Pobj
 
