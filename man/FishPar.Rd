@@ -2,28 +2,35 @@
 % Please edit documentation in R/FishPar.R
 \name{FishPar}
 \alias{FishPar}
-\title{Calculate Length-Based Indicators for Fish Stock Assessment
-#'@importFrom graphics abline axis barplot box boxplot hist legend lines par rect segments text}
+\title{Calculate Length-Based Indicators with Monte Carlo Simulation}
 \usage{
-FishPar(data, resample, progress)
+FishPar(data, resample = 1000, progress = FALSE, Linf = NULL, Linf_sd = 0.5, Lmat = NULL,
+  Lmat_sd = 0.5, display_plots = TRUE, save_files = FALSE)
 }
 \arguments{
 \item{data}{A data frame containing two columns: Length and Frequency.}
 
-\item{resample}{An integer indicating the number of bootstrap resamples.}
+\item{resample}{An integer indicating the number of Monte Carlo samples or bootstrap resamples (default: 1000).}
 
-\item{progress}{A logical value indicating whether to display progress.}
+\item{progress}{A logical value indicating whether to display progress (default: FALSE).}
+
+\item{Linf}{A numeric value for the asymptotic length (optional). If provided, overrides the default Lmax/0.95 calculation.}
+
+\item{Linf_sd}{A numeric value for the standard deviation of random variation added to Linf (default: 0.5). Only used if Linf is provided.}
+
+\item{Lmat}{A numeric value for the length at maturity (optional). If provided, overrides the default Monte Carlo estimation.}
+
+\item{Lmat_sd}{A numeric value for the standard deviation of random variation added to Lmat (default: 0.5). Only used if Lmat is provided.}
+
+\item{display_plots}{A logical value indicating whether to display plots in the plot panel (default: TRUE).}
+
+\item{save_files}{A logical value indicating whether to save plots (PDFs) and results (Excel) to temporary files (default: FALSE).}
 }
 \value{
-A list containing estimated length parameters, Froese indicators, and other relevant metrics.
+A list containing estimated length parameters, Froese indicators, and other metrics.
 }
 \description{
-This function calculates various length-based indicators for fish stock assessment
-using length frequency data and bootstrap resampling.
-}
-\examples{
-data <- data.frame(Length = c(10, 20, 30, 40, 50), Frequency = c(5, 10, 15, 20, 25))
-FishPar(lenfreq01, 100, progress = FALSE)
-utils::data("lenfreq01", package = "aLBI")
-utils::data("lenfreq02", package = "aLBI")
+This function calculates length-based indicators using Monte Carlo simulation for length parameters
+and non-parametric bootstrap for Froese indicators. Plots can be displayed in the plot panel, and files (PDFs and Excel)
+can be optionally saved to temporary locations.
 }

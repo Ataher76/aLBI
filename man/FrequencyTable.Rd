@@ -3,35 +3,45 @@
 \name{FrequencyTable}
 \alias{FrequencyTable}
 \title{Generate a Frequency Distribution Table for Fish Length Data}
+\usage{
+FrequencyTable(
+  data,
+  bin_width = NULL,
+  Lmax = NULL,
+  output_file = "FrequencyTable_Output.xlsx"
+)
+}
 \arguments{
-\item{data}{A numeric vector or data frame containing fish length measurements. If a data frame is
-provided, the first numeric column will be selected.}
+\item{data}{A numeric vector or data frame containing fish length measurements. If a data frame is provided, the first numeric column is used.}
 
-\item{bin_width}{(Optional) A numeric value specifying the bin width for class intervals. If not
-provided, the bin width is automatically calculated using Wang's formula.}
+\item{bin_width}{Numeric value specifying the bin width for class intervals. If NULL (default), bin width is calculated using Wang's formula.}
 
-\item{Lmax}{(Optional) The maximum observed length of fish. Required only if the maximum length is not provided
-and bin width is calculated using Wang's formula.}
+\item{Lmax}{Numeric value for the maximum observed fish length. Required only if `bin_width` is NULL and Wang's formula is used. Defaults to NULL.}
+
+\item{output_file}{Character string specifying the output Excel file name. Defaults to "FrequencyTable_Output.xlsx".}
 }
 \value{
 A list containing two data frames:
-\item{lfqTable}{A frequency table with the length range and frequency.}
-\item{lfreq}{A table with the upper limits of bins and their frequencies.}
+\describe{
+  \item{lfqTable}{Frequency table with length ranges and their frequencies.}
+  \item{lfreq}{Table with upper limits of bins and their frequencies.}
+}
 }
 \description{
-This function creates a frequency distribution table for fish length data, using
-either a custom bin width or Wang's formula to calculate the ideal bin width. If the calculated
-bin width is a fraction, it is rounded to the nearest integer.
+Creates a frequency distribution table for fish length data using either a custom bin width or Wang's formula for automatic bin width calculation. The bin width is rounded to the nearest integer if calculated. The results are saved to an Excel file and returned as a list of data frames.
 }
 \examples{
+# Load required package
+library(dplyr)
+
 # Generate random fish length data
 set.seed(123)
-fish_lengths <- data.frame(Length = runif(2000, min = 5, max = 70))
+fish_lengths <- runif(200, min = 5, max = 70)
 
-# Create a frequency table using Wang's formula (default)
-FrequencyTable(data = fish_lengths$Length)
+# Create frequency table with automatic bin width
+FrequencyTable(data = fish_lengths, output_file = tempfile(fileext = ".xlsx"))
 
-# Create a frequency table with a custom bin width
-FrequencyTable(data = fish_lengths$Length, bin_width = 5)
+# Create frequency table with custom bin width and output file
+FrequencyTable(data = fish_lengths, bin_width = 5, output_file = tempfile(fileext = ".xlsx"))
 
 }

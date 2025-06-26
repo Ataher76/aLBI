@@ -1,7 +1,7 @@
 Package: aLBI
 Type: Package
 Title: Estimating Length-Based Indicators for Fish Stock
-Version: 0.1.7
+Version: 0.1.8
 Authors@R: c(
     person("Ataher", "Ali", email = "ataher.cu.ms@gmail.com", role = c("aut", "cre")),
     person("Mohammed Shahidul", "Alam", email = "alamms@cu.ac.bd", role = "aut"))
@@ -13,18 +13,20 @@ Description: Provides tools for estimating length-based indicators from length f
     FishSS(): Makes decisions based on input from Cope and Punt (2009) <doi:10.1577/C08-025.1> and parameters calculated by FishPar() (e.g., Pobj, Pmat, Popt, LM_ratio) to determine stock status as target spawning biomass (TSB40) and limit spawning biomass (LSB25). These tools support fisheries management decisions by providing robust, data-driven insights.
 Depends: R (>= 3.5.0)
 Imports:
-    dplyr
+    dplyr,
+    openxlsx,
+    stats,
+    graphics
 Suggests: 
     testthat, 
     knitr, 
     rmarkdown,
     devtools,
-     readxl,
-     openxlsx
+     readxl
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/Ataher76/aLBI
 BugReports: https://github.com/Ataher76/aLBI/issues
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 VignetteBuilder: knitr
