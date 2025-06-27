@@ -87,9 +87,23 @@ FrequencyTable <- function(data, bin_width = NULL, Lmax = NULL, output_file = "F
   # Extract upper limits for lfreq table
   lfreq <- lfqTable %>%
     dplyr::mutate(
-      Length = as.numeric(sub(".*,(\\d+\\.?\\d*)\\)", "\\1", as.character(Length_Range)))
+      Length = as.numeric(sub(".*,(\\d+\\.?\\d*)[\\)\\]]?$", "\\1", as.character(Length_Range)))
     ) %>%
     dplyr::select(Length, Frequency)
+
+  # Check for NA values in Length and handle them
+  if (any(is.na(lfreq$Length))) {
+    warning("Some Length values could not be extracted. Attempting fallback extraction.")
+    lfreq$Length <- sapply(as.character(lfqTable$Length_Range), function(x) {
+      # Extract the number after the comma
+      num <- regmatches(x, regexec(".*,(\\d+\\.?\\d*)", x))[[1]][2]
+      if (is.na(num)) {
+        # Fallback: extract the last number in the string
+        num <- regmatches(x, regexec("(\\d+\\.?\\d*)$", x))[[1]][1]
+      }
+      as.numeric(num)
+    })
+  }
 
   # Save to Excel
   if (file.exists(output_file)) {
