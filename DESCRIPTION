@@ -16,7 +16,9 @@ Imports:
     dplyr,
     openxlsx,
     stats,
-    graphics
+    graphics,
+    grDevices,
+    utils
 Suggests: 
     testthat, 
     knitr, 

@@ -5,14 +5,14 @@
 \title{Calculate Length-Based Indicators with Monte Carlo Simulation}
 \usage{
 FishPar(data, resample = 1000, progress = FALSE, Linf = NULL, Linf_sd = 0.5, Lmat = NULL,
-  Lmat_sd = 0.5, display_plots = TRUE, save_files = FALSE)
+  Lmat_sd = 0.5)
 }
 \arguments{
 \item{data}{A data frame containing two columns: Length and Frequency.}
 
 \item{resample}{An integer indicating the number of Monte Carlo samples or bootstrap resamples (default: 1000).}
 
-\item{progress}{A logical value indicating whether to display progress (default: FALSE).}
+\item{progress}{A logical value indicating whether to display a progress bar (default: FALSE).}
 
 \item{Linf}{A numeric value for the asymptotic length (optional). If provided, overrides the default Lmax/0.95 calculation.}
 
@@ -21,16 +21,12 @@ FishPar(data, resample = 1000, progress = FALSE, Linf = NULL, Linf_sd = 0.5, Lma
 \item{Lmat}{A numeric value for the length at maturity (optional). If provided, overrides the default Monte Carlo estimation.}
 
 \item{Lmat_sd}{A numeric value for the standard deviation of random variation added to Lmat (default: 0.5). Only used if Lmat is provided.}
-
-\item{display_plots}{A logical value indicating whether to display plots in the plot panel (default: TRUE).}
-
-\item{save_files}{A logical value indicating whether to save plots (PDFs) and results (Excel) to temporary files (default: FALSE).}
 }
 \value{
 A list containing estimated length parameters, Froese indicators, and other metrics.
 }
 \description{
 This function calculates length-based indicators using Monte Carlo simulation for length parameters
-and non-parametric bootstrap for Froese indicators. Plots can be displayed in the plot panel, and files (PDFs and Excel)
-can be optionally saved to temporary locations.
+and non-parametric bootstrap for Froese indicators. Plots are displayed in the plot panel, and PDFs and an Excel file
+of results are saved to the current working directory.
 }
