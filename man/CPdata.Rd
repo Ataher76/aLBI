@@ -5,23 +5,23 @@
 \alias{CPdata}
 \title{CPdata: Example dataset for aLBI package}
 \format{
-A data frame with [number of rows] rows and 11 columns:
+A data frame with 11 columns:
 \describe{
-  \item{\code{A}}{[description of column A]}
-  \item{\code{B}}{[description of column B]}
-  \item{\code{C}}{[description of column C]}
-  \item{\code{D}}{[description of column D]}
-  \item{\code{E}}{[description of column E]}
-  \item{\code{F}}{[description of column F]}
-  \item{\code{G}}{[description of column G]}
-  \item{\code{H}}{[description of column H]}
-  \item{\code{I}}{[description of column I]}
-  \item{\code{J}}{[description of column J]}
-  \item{\code{Tx}}{[description of column Tx]}
+  \item{\code{A}}{Probability values}
+  \item{\code{B}}{Probability values}
+  \item{\code{C}}{Probability values}
+  \item{\code{D}}{Probability values}
+  \item{\code{E}}{Probability values}
+  \item{\code{F}}{Probability values}
+  \item{\code{G}}{Probability values}
+  \item{\code{H}}{Probability values}
+  \item{\code{I}}{Probability values}
+  \item{\code{J}}{Probability values}
+  \item{\code{Tx}}{Target column compared with LM_ratio to pick probability values}
 }
 }
 \source{
-[Include the source of the data if available]
+A decision table described by Cope and Punt (2009)
 }
 \usage{
 data(CPdata)
@@ -30,6 +30,6 @@ data(CPdata)
 This dataset contains description of CPdata.
 }
 \examples{
-data(CPdata)
+data(CPdata, package = "aLBI")
 head(CPdata)
 }

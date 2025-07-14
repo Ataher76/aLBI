@@ -136,9 +136,6 @@ FishPar <- function(data, resample = 1000, progress = FALSE, Linf = NULL, Linf_s
   lower_froese <- apply(froese_indicators, 2, function(x) pmax(0, quantile(x, probs = 0.025, na.rm = TRUE)))
   upper_froese <- apply(froese_indicators, 2, function(x) pmin(100, quantile(x, probs = 0.975, na.rm = TRUE)))
 
-  mean_freq_sums <- apply(frequency_sums, 2, mean, na.rm = TRUE)
-  lower_freq_sums <- apply(frequency_sums, 2, function(x) quantile(x, probs = 0.025, na.rm = TRUE))
-  upper_freq_sums <- apply(frequency_sums, 2, function(x) quantile(x, probs = 0.975, na.rm = TRUE))
 
   # Extract parameters
   Lmax <- mean_estimates[1]
@@ -154,6 +151,7 @@ FishPar <- function(data, resample = 1000, progress = FALSE, Linf = NULL, Linf_s
 
   Pobj <- sum(Pmat, Popt, Pmega)
   LM_ratio <- Lmat / Lopt
+  Total_ind <- sum(data[[2]])
 
   # Create data frames with clean parameter names
   parameter_names <- c("Lmax", "Linf", "Lmat", "Lopt", "Lopt_p10", "Lopt_m10")
@@ -172,12 +170,6 @@ FishPar <- function(data, resample = 1000, progress = FALSE, Linf = NULL, Linf_s
     Upper_CI = upper_froese
   )
 
-  estimated_freq_sums <- data.frame(
-    Parameter = c("sumT", "sum_mat", "sum_opt", "sum_mega"),
-    Mean = mean_freq_sums,
-    Lower_CI = lower_freq_sums,
-    Upper_CI = upper_freq_sums
-  )
 
   forese_ind_vs_target <- data.frame(
     Parameters = froese_names,
@@ -437,7 +429,8 @@ FishPar <- function(data, resample = 1000, progress = FALSE, Linf = NULL, Linf_s
     estimated_froese_par = estimated_froese_par,
     forese_ind_vs_target = forese_ind_vs_target,
     LM_ratio = LM_ratio,
-    Pobj = Pobj
+    Pobj = Pobj,
+    Total_ind = Total_ind
   )
   return(result)
 }

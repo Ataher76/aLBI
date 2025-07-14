@@ -5,14 +5,14 @@
 \alias{lenfreq01}
 \title{lenfreq01: Example dataset for aLBI package}
 \format{
-A data frame with [number of rows] rows and 2 columns:
+A data frame with 2 columns:
 \describe{
-  \item{\code{Frequency}}{[description of column Frequency]}
-  \item{\code{Length}}{[description of column Length]}
+  \item{\code{Frequency}}{Observed individuals in each length class}
+  \item{\code{Length}}{Upper value of each length class (cm)}
 }
 }
 \source{
-[Include the source of the data if available]
+Data collected for fish stock assessment studies
 }
 \usage{
 data(lenfreq01)
@@ -21,6 +21,6 @@ data(lenfreq01)
 This dataset contains description of lenfreq01.
 }
 \examples{
-data(lenfreq01)
+data(lenfreq01, package = "aLBI")
 head(lenfreq01)
 }

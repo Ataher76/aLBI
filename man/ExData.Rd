@@ -3,15 +3,15 @@
 \docType{data}
 \name{ExData}
 \alias{ExData}
-\title{ExData: Example raw lenght dataset for aLBI package}
+\title{ExData: Example raw length dataset for aLBI package}
 \format{
-A data frame with [number of rows] rows and 1 columns:
+A data frame with 1 column:
 \describe{
-  \item{\code{Length}}{[description of column Length measured]}
+  \item{\code{Length}}{Sampled length data (cm)}
 }
 }
 \source{
-[Include the source of the data if available]
+Data collected for fish stock assessment studies
 }
 \usage{
 data(ExData)
@@ -20,6 +20,6 @@ data(ExData)
 This dataset contains description of ExData.
 }
 \examples{
-data(ExData)
+data(ExData, package = "aLBI")
 head(ExData)
 }

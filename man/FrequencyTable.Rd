@@ -2,7 +2,7 @@
 % Please edit documentation in R/FrequencyTable.R
 \name{FrequencyTable}
 \alias{FrequencyTable}
-\title{Generate a Frequency Distribution Table for Fish Length Data}
+\title{FrequencyTable Generate a Frequency Distribution Table for Fish Length Data}
 \usage{
 FrequencyTable(
   data,

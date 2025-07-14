@@ -1,13 +1,8 @@
-#' @importFrom dplyr group_by summarise mutate select %>% n
-#' @importFrom openxlsx write.xlsx
-#' @importFrom stats na.omit
+# Declare global variables at the top of the file
 utils::globalVariables(c("Length_Range", "Length", "Frequency"))
 
-#' Generate a Frequency Distribution Table for Fish Length Data
-#'
-#' @name FrequencyTable
+#' @title FrequencyTable Generate a Frequency Distribution Table for Fish Length Data
 #' @description Creates a frequency distribution table for fish length data using either a custom bin width or Wang's formula for automatic bin width calculation. The bin width is rounded to the nearest integer if calculated. The results are saved to an Excel file and returned as a list of data frames.
-#'
 #' @param data A numeric vector or data frame containing fish length measurements. If a data frame is provided, the first numeric column is used.
 #' @param bin_width Numeric value specifying the bin width for class intervals. If NULL (default), bin width is calculated using Wang's formula.
 #' @param Lmax Numeric value for the maximum observed fish length. Required only if `bin_width` is NULL and Wang's formula is used. Defaults to NULL.
@@ -33,7 +28,12 @@ utils::globalVariables(c("Length_Range", "Length", "Frequency"))
 #' # Create frequency table with custom bin width and output file
 #' FrequencyTable(data = fish_lengths, bin_width = 5, output_file = tempfile(fileext = ".xlsx"))
 #'
+#' @importFrom dplyr group_by summarise mutate select %>% n
+#' @importFrom openxlsx write.xlsx
+#' @importFrom stats na.omit
+#'
 #' @export
+#'
 FrequencyTable <- function(data, bin_width = NULL, Lmax = NULL, output_file = "FrequencyTable_Output.xlsx") {
   # Validate input
   if (!is.numeric(data) && !is.data.frame(data)) {

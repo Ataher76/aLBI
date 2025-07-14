@@ -5,26 +5,25 @@
 #' @name CPdata
 #' @docType data
 #' @usage data(CPdata)
-#' @format A data frame with [number of rows] rows and 11 columns:
+#' @format A data frame with 11 columns:
 #' \describe{
-#'   \item{\code{A}}{[description of column A]}
-#'   \item{\code{B}}{[description of column B]}
-#'   \item{\code{C}}{[description of column C]}
-#'   \item{\code{D}}{[description of column D]}
-#'   \item{\code{E}}{[description of column E]}
-#'   \item{\code{F}}{[description of column F]}
-#'   \item{\code{G}}{[description of column G]}
-#'   \item{\code{H}}{[description of column H]}
-#'   \item{\code{I}}{[description of column I]}
-#'   \item{\code{J}}{[description of column J]}
-#'   \item{\code{Tx}}{[description of column Tx]}
+#'   \item{\code{A}}{Probability values}
+#'   \item{\code{B}}{Probability values}
+#'   \item{\code{C}}{Probability values}
+#'   \item{\code{D}}{Probability values}
+#'   \item{\code{E}}{Probability values}
+#'   \item{\code{F}}{Probability values}
+#'   \item{\code{G}}{Probability values}
+#'   \item{\code{H}}{Probability values}
+#'   \item{\code{I}}{Probability values}
+#'   \item{\code{J}}{Probability values}
+#'   \item{\code{Tx}}{Target column compared with LM_ratio to pick probability values}
 #' }
-#' @source [Include the source of the data if available]
+#' @source A decision table described by Cope and Punt (2009)
 #' @examples
-#' data(CPdata)
+#' data(CPdata, package = "aLBI")
 #' head(CPdata)
-NULL  # Include this line to ensure the data is loaded correctly
-
+NULL
 
 #' lenfreq01: Example dataset for aLBI package
 #'
@@ -33,16 +32,16 @@ NULL  # Include this line to ensure the data is loaded correctly
 #' @name lenfreq01
 #' @docType data
 #' @usage data(lenfreq01)
-#' @format A data frame with [number of rows] rows and 2 columns:
+#' @format A data frame with 2 columns:
 #' \describe{
-#'   \item{\code{Frequency}}{[description of column Frequency]}
-#'   \item{\code{Length}}{[description of column Length]}
+#'   \item{\code{Frequency}}{Observed individuals in each length class}
+#'   \item{\code{Length}}{Upper value of each length class (cm)}
 #' }
-#' @source [Include the source of the data if available]
+#' @source Data collected for fish stock assessment studies
 #' @examples
-#' data(lenfreq01)
+#' data(lenfreq01, package = "aLBI")
 #' head(lenfreq01)
-NULL  # Include this line to ensure the data is loaded correctly
+NULL
 
 #' lenfreq02: Example dataset for aLBI package
 #'
@@ -51,31 +50,48 @@ NULL  # Include this line to ensure the data is loaded correctly
 #' @name lenfreq02
 #' @docType data
 #' @usage data(lenfreq02)
-#' @format A data frame with [number of rows] rows and 2 columns:
+#' @format A data frame with 2 columns:
 #' \describe{
-#'   \item{\code{Frequency}}{[description of column Frequency]}
-#'   \item{\code{LengthClass}}{[description of column LengthClass]}
+#'   \item{\code{Frequency}}{Observed individuals in each length class}
+#'   \item{\code{LengthClass}}{Upper value of each length class (cm)}
 #' }
-#' @source [Include the source of the data if available]
+#' @source Data collected for fish stock assessment studies
 #' @examples
-#' data(lenfreq02)
+#' data(lenfreq02, package = "aLBI")
 #' head(lenfreq02)
-NULL  # Include this line to ensure the data is loaded correctly
+NULL
 
-#' ExData: Example raw lenght dataset for aLBI package
+#' ExData: Example raw length dataset for aLBI package
 #'
 #' This dataset contains description of ExData.
 #'
 #' @name ExData
 #' @docType data
 #' @usage data(ExData)
-#' @format A data frame with [number of rows] rows and 1 columns:
+#' @format A data frame with 1 column:
 #' \describe{
-#'   \item{\code{Length}}{[description of column Length measured]}
+#'   \item{\code{Length}}{Sampled length data (cm)}
 #' }
-#' @source [Include the source of the data if available]
+#' @source Data collected for fish stock assessment studies
 #' @examples
-#' data(ExData)
+#' data(ExData, package = "aLBI")
 #' head(ExData)
-NULL  # Include this line to ensure the data is loaded correctly
+NULL
 
+#' LWdata: Example length-weight dataset for aLBI package
+#'
+#' This dataset contains length and weight measurements for fish.
+#'
+#' @name LWdata
+#' @docType data
+#' @usage data(LWdata)
+#' @format A data frame with 2 columns:
+#' \describe{
+#'   \item{\code{Length}}{Length of sampled fish (cm)}
+#'   \item{\code{Weight}}{Weight of sampled fish (g)}
+#' }
+#' @source Data collected for fish stock assessment studies
+#' @examples
+#' data(LWdata, package = "aLBI")
+#' head(LWdata)
+NULL

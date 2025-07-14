@@ -1,7 +1,8 @@
 ---
 title: "aLBI - A Simple R Package for Estimating Length-Based Indicators and Fish Stock Assessment from Length Frequency Data"
 author: "Ataher Ali"
-output: rmarkdown::html_vignette
+date: "`r Sys.Date()`"
+output: html_vignette
 vignette: >
   %\VignetteIndexEntry{aLBI - A Simple R Package for Estimating Length-Based Indicators and Fish Stock Assessment from Length Frequency Data}
   %\VignetteEngine{knitr::rmarkdown}
@@ -25,24 +26,25 @@ library(aLBI)
 # Suppress warnings during vignette build for cleaner output
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(readxl))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(stats))
 ```
 
 ## Introduction
-The `aLBI` package provides tools for estimating length-based indicators and assessing fish stock using methods outlined by Cope and Punt (2009) and Froese (2004). These methods are particularly useful in data-limited situations and for providing simple indicators to address over-fishing. This simple package facilitates the estimation of life history parameters of fish only from the length frequency data.
+The `aLBI` package provides tools for estimating life history parameters, length-based indicators, and assessing fish stock using methods outlined by Cope and Punt (2009) and Froese (2004). These methods are particularly useful in data-limited situations and for providing simple indicators to address over-fishing and support sustainable fisheries management. This simple package facilitates the estimation of life history parameters of fish only from the length frequency data. Version 0.1.8 introduces the `LWR` function for length-weight relationship analysis and updates `FrequencyTable` and `FsihPar` with enhanced functionality. These includes the addition Monte Carlo,  non-parametric bootstrapping, and saving of outputs to the current working directory.
 
 ## Function Overview
-
 The aLBI package offers three primary functions:
-- **FrequencyTable**: Creates frequency tables from length data.
-- **FishPar**: Estimates biological parameters using bootstrapping.
-- **FishSS**: Evaluates stock status based on estimated parameters.
-
+- **FrequencyTable**: Creates a frequency distribution table for fish length data using either a custom bin width or Wang's formula for automatic bin width calculation. The bin width is rounded to the nearest integer if calculated.
+- **FishPar**: This function calculates length-based indicators using Monte Carlo simulation for length parameters and non-parametric bootstrap for Froese indicators.
+- **FishSS**: This function assesses the stock status based on parameters calculated by the FishPar function.
+- **LWR**: Fits and visualizes length-weight relationships using linear regression.
 
 ### Methods
-The package includes functions to calculate various length-based indicators and visualize fish stock data. The approaches from Cope and Punt (2009) are used to establish reference points, while Froese (2004)'s indicators help to evaluate over-fishing status.
+The package includes functions to calculate various length-based indicators and visualize fish stock data. The approaches from Cope and Punt (2009) are used to establish reference points, while Froese (2004)'s indicators help to evaluate over-fishing status. This vignette demonstrates how to use these functions with sample and provided data.
 
 ### Installation
-To install the aLBI package from GitHub, follow these steps. Note that devtools is required to install packages from GitHub.
+To install the aLBI package from CRAN or GitHub. To enjoy most recent updates, users are encouraged to install the aLBI  from GitHub), follow these steps. Note that devtools is required to install packages from GitHub.
 ```{r installing_package }
 # You can install the package using the following commands in your R session:
 # Install devtools if you haven't already
@@ -51,6 +53,10 @@ To install the aLBI package from GitHub, follow these steps. Note that devtools 
 # install.packages("dplyr")
 # # Install readxl if you haven't already
 # install.packages("readxl")
+# Install ggplot2 if you haven't already
+# install.packages("ggplot2")
+# Install openxlsx if you haven't already
+# install.packages("openxlsx")
 # install aLBI package from CRAN
 # install.packages("aLBI")
 # Install the most updated version of aLBI package from GitHub
@@ -63,7 +69,7 @@ Ensure the required packages are loaded in your R session. The following code ch
 ```{r package_management }
 # Check if required packages are installed and load them
 # Check if required packages are installed and load them
-required_packages <- c("aLBI", "readxl", "dplyr", "devtools")
+required_packages <- c("aLBI", "readxl", "openxlsx", "dplyr", "devtools", "ggplot2")
 
 for (pkg in required_packages) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
@@ -78,6 +84,8 @@ for (pkg in required_packages) {
 library(aLBI)
 library(readxl)
 library(dplyr)
+library(ggplot2)
+library(openxlsx)
 library(devtools)
 ```
 
@@ -86,17 +94,21 @@ library(devtools)
 Prepare your collected data in a specific format (.xlsx or .csv) before using the functions. Here's an example of how to load and prepare your data using the readxl package:
 
 ## Function (i): FrequencyTable
-This function will calculate the frequency table from the collected and also the extract the length frequency data from the frequency table with the upper length_range.
+**FrequencyTable** function will generates the frequency table from the collected length data by calculated optimum bin size or user defined bin size. It also allows the user to provide Lmax from reliable sources such as **FishBase** or empirical studies. The function extract the length frequency data from the frequency table with the upper length_range and allow users to save the frequency data as an excel file for further use in the **FishPar** function.
 
 ### Arguments
-- **data**: A numeric vector or data frame of fish lengths. If a data frame is used, the first numeric column is selected.
+
+#' @param bin_width 
+#' @param Lmax Numeric value for the maximum observed fish length. Required only if `bin_width` is NULL and Wang's formula is used. Defaults to NULL.
+#' @param output_file Character string specifying the output Excel file name. Defaults to "FrequencyTable_Output.xlsx".
+#'
+
+- **data**: A numeric vector or data frame containing fish length measurements. If a data frame is provided, the first numeric column is used.
 
 - **bin_width**: Optional. A numeric value specifying the bin width for class intervals, if left NULL or if not provided, the bin width is automatically calculated using Wang et al. (2020) optimum bin size (OBS) formula formula.
 
--**Lmax**: Optional. The maximum observed length of fish. Required only if default method ("wang") is used and bin_width is not provided. If not provided or left NULL then automatically calculate the frequency table with the observed maximum length of the provided data.
-
-
-### Example with provided data
+-**Lmax**: Optional. The maximum observed length of fish. Required only if `bin_width` is NULL and Wang's formula is used. If not provided or left NULL then automatically calculate the frequency table with the observed maximum length of the provided data.
+- **output_file**: Optional. Character string specifying the output Excel file name. Defaults to "FrequencyTable_Output.xlsx".
 
 ```{r data_preparation}
 library(readxl)
@@ -119,7 +131,7 @@ print(lenght_data)  # check the
 
 ```{r FrequencyTable_Output}
 # Running the FrequencyTable function
-freqTable <- FrequencyTable(data = lenght_data, bin_width = NULL, Lmax = NULL)
+freqTable <- FrequencyTable(data = lenght_data, bin_width = NULL, Lmax = NULL, output_file = "FrequencyTable_Output.xlsx")
 
 # Viewing the results
 freqTable$lfqTable  # Display the frequency table
@@ -129,12 +141,16 @@ freqTable$lfreq     # Display the summarized frequencies with upper length range
 
 
 ## Function (ii): FishPar
-The FishPar function estimates biological parameters such as Lmax, Linf, Lmat, and Lopt using bootstrapping resampling method.
+The **FishPar** function estimates life history parameters (e.g., Lmax, Linf, Lmat, and Lopt) using Monte Carlo Simulation and Froese Sustainability Indicators using non-parametric bootstrapping method.
 
 ### Arguments
-- **data**: A data frame containing Length and Frequency columns.
-- **resample**: Number of bootstrap resamples. Default is 1000.
-- **progress**: Logical value indicating whether to show progress. Default is FALSE.
+- **data**: A data frame containing two columns: Length and Frequency.
+- **resample**: An integer indicating the number of Monte Carlo samples or bootstrap resamples (default: 1000).
+- **progress**: A logical value indicating whether to display a progress bar (default: FALSE).
+- **Linf**: A numeric value for the asymptotic length (optional). If provided, overrides the default Lmax/0.95 calculation.
+- **Linf_sd**: A numeric value for the standard deviation of random variation added to Linf (default: 0.5). Only used if Linf is provided.
+- **Lmat**: A numeric value for the length at maturity (optional). If provided, overrides the default Monte Carlo estimation.
+- **Lmat_sd**: A numeric value for the standard deviation of random variation added to Lmat (default: 0.5). Only used if Lmat is provided.
 
 
 ### Example with existing data
@@ -158,7 +174,7 @@ print(lenfreq_data)  # check the data
 
 ```{r FishPar_Output}
 # Running the FishPar function
-results <- FishPar(data = lenfreq_data, resample = 1000, progress = FALSE)
+results <- FishPar(data = lenfreq_data, resample = 1000, progress = FALSE, Linf = NULL, Linf_sd = 0.5, Lmat = NULL, Lmat_sd = 0.5)
 
 # Viewing the results
 results$estimated_length_par
@@ -171,7 +187,7 @@ results$Pobj
 ```
 
 ### Explaination of Output
-The function returns a list with the following components:
+The function returns a list with the following components saved in three different sheet of excel file:
 
 estimated_length_par: Data frame of estimated length parameters with confidence intervals.
 estimated_froese_par: Data frame of estimated Froese indicators.
@@ -179,17 +195,18 @@ estimated_freq_par: Data frame of frequency parameters.
 forese_ind_vs_target: Data frame comparing Froese indicators with targets.
 LM_ratio: Length at maturity ratio.
 Pobj: Objective percentage combining Pmat, Popt, and Pmega.
+Total_ind: Number of sampled individuals
 
 
 ## Function (iii): FishSS
-The FishSS function evaluates stock status using criteria based on the estimated parameters.
+The **FishSS** function evaluates stock status using criteria based on the estimated parameters by FishPar.
 
 ### Arguments
-- **data**: A data frame of the stock status according to Cope and Punt (2009).
-- **LM_ratio**: Length at maturity ratio from FishPar function.
-- **Pobj**: Objective percentage from FishPar function.
-- **Pmat**: Percentage of mature fish.
-- **Popt**: Percentage of optimal fish.
+- **data**: A data frame containing the necessary columns for stock status calculation according to Cope and Punt (2009).
+- **LM_ratio**: A numeric value representing the length at maturity ratio.
+- **Pobj**: A numeric value representing the percentage objective.
+- **Pmat**: A numeric value representing the percentage of mature fish.
+- **Popt**: A numeric value representing the percentage of optimally sized fish.
 
 ### Example with CPdata
 
@@ -218,9 +235,64 @@ stock_status
 ```
 
 
-
 ### Output
 The function returns a named vector with TSB40 and LSB25 values indicating stock status.
+
+
+## Function (iv): LWR
+The **LWR** This function visualizes and models the relationship between length and weight (or any two continuous variables) using linear regression. It supports both standard and log-transformed models, producing a ggplot2-based plot with a fitted line, optional confidence interval shading, and annotations for the regression equation, R², and p-value. When save_output is TRUE, the plot and model summary are saved to the current working directory as a PDF and text file, respectively.
+
+### Arguments
+- **data**: A data frame with two columns: the first for length, the second for weight.
+- **log_transform**: Logical. Whether to apply a log-log transformation to the variables. Default is TRUE.
+- **point_col**: Color of the data points. Default is black.
+- **line_col**: Color of the regression line. Default is red.
+- **shade_col**: Color for the confidence interval ribbon. Default is red.
+- **point_size**: Size of the data points. Default is 2.
+- **line_size**: Size of the regression line. Default is 1.
+- **alpha**: Transparency for the confidence interval ribbon. Default is 0.2.
+- **main**: Title of the plot. Default is "Length-Weight Relationship".
+- **xlab**: Optional. Custom x-axis label. If \code{NULL}, a label is generated based on log_transform.
+- **ylab**: Optional. Custom y-axis label. If \code{NULL}, a label is generated based on on log_transform.
+- **save_output**: Logical. Whether to save the plot as a PDF and the model summary as a text file in the working directory. Default is TRUE.
+
+### Example with existing LWdata
+
+```{r LWR_Example}
+# Load the stock status criteria data
+LWdata_path <- system.file("exdata", "LWdata.xlsx", package = "aLBI")
+print(LWdata_path) #check if the path exist
+
+if (LWdata_path == "") {
+  stop("The required file LWdata.xlsx is missing. Please check the inst/extdata directory.")
+}
+# loading the cope and punt table
+LWdata <- readxl::read_excel(LWdata_path)
+print(LWdata)
+
+# Running the LWR function
+lwr_result <- LWR(data = LWdata,
+                log_transform = TRUE,
+                point_col = "black",
+                line_col = "red",
+                shade_col = "red",
+                point_size = 2,
+                line_size = 1,
+                alpha = 0.2,
+                main = "Length-Weight Relationship",
+                xlab = NULL,
+                ylab = NULL,
+                save_output = TRUE)
+
+# Viewing the stock status
+lwr_result
+
+```
+
+
+### Output
+Length-Weight plot with model summery
+
 
 ## Conclusion
 The Fish Stock Assessment package provides a robust framework for estimating biological parameters and assessing fish stock status. By following the steps outlined in this vignette, you can effectively utilize this package for your fish stock assessment needs.
@@ -237,11 +309,16 @@ I would like to express my heartfelt gratitude to my supervisor, Dr. Mohammed Sh
 
 This vignette provides a comprehensive guide to using the Assessment package. By following these instructions, users can effectively conduct fish stock assessments and contribute to sustainable fishery management practices.
 
+## To read more detail
+Readers are encouraged to read the article published in *Fisheries Research* of this R Package.
+
+- Ali, A., Sarker, M. R., & Alam, M. S. (2025). Development of a simple R package (aLBI) for the estimation of stock status from the length frequency data. *Fisheries Research*, 288, 107467. https://doi.org/10.1016/j.fishres.2025.107467
 
 ## References
 
 - Wang, K., Zhang, C., Xu, B., Xue, Y., & Ren, Y. (2020). Selecting optimal bin size to account for growth variability in Electronic LEngth Frequency ANalysis (ELEFAN). *Fisheries Research*, 225, 105474. https://doi.org/10.1016/j.fishres.2019.105474
 
-- Cope, J. M., & Punt, A. E. (2009). Length‐Based Reference Points for Data‐Limited Situations: Applications and Restrictions. *Marine and Coastal Fisheries, 1*(1), 169–186. https://doi.org/10.1577/C08-025.1
+- Cope, J. M., & Punt, A. E. (2009). Length‐Based Reference Points for Data‐Limited Situations: Applications and Restrictions. *Marine and Coastal Fisheries*, 1(1), 169–186. https://doi.org/10.1577/C08-025.1
 
-- Froese, R. (2004). Keep it simple: Three indicators to deal with overfishing. *Fish and Fisheries, 5*(1), 86–91. https://doi.org/10.1111/j.1467-2979.2004.00144.x
+- Froese, R. (2004). Keep it simple: Three indicators to deal with overfishing. *Fish and Fisheries*, 5(1), 86–91. https://doi.org/10.1111/j.1467-2979.2004.00144.x
+
