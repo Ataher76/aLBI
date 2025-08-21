@@ -2,26 +2,26 @@
 % Please edit documentation in R/FishSS.R
 \name{FishSS}
 \alias{FishSS}
-\title{Assess Stock Status Based on Calculated Parameters}
+\title{Assess Stock Status and Classify Fish selectivity}
 \usage{
-FishSS(data, LM_ratio, Pobj, Pmat, Popt)
+FishSS(data, LM_ratio, Pmat, Popt, Pmega)
 }
 \arguments{
-\item{data}{A data frame containing the necessary columns for stock status calculation.}
+\item{data}{A data frame containing the necessary columns for stock status calculation from Cope & Punt (2009)}
 
 \item{LM_ratio}{A numeric value representing the length at maturity ratio.}
-
-\item{Pobj}{A numeric value representing the percentage objective.}
 
 \item{Pmat}{A numeric value representing the percentage of mature fish.}
 
 \item{Popt}{A numeric value representing the percentage of optimally sized fish.}
+
+\item{Pmega}{A numeric value representing the percentage megaspawner.}
 }
 \value{
-A numeric vector containing TSB40 and LSB25.
+A list containing the selected columns, the target value, the closest value index, the calculated stock status, and the fish classification.
 }
 \description{
-This function assesses the stock status based on parameters calculated by the FishPar function.
+This function assesses stock status and classifies fish selectivity based on the provided parameters.
 }
 \examples{
 utils::data("CPdata", package = "aLBI")

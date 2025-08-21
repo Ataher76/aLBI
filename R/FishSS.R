@@ -1,66 +1,85 @@
-#'@title Assess Stock Status Based on Calculated Parameters
-#' @description This function assesses the stock status based on parameters calculated by the FishPar function.
-#' @param data A data frame containing the necessary columns for stock status calculation.
+#' @title Assess Stock Status and Classify Fish selectivity
+#' @description This function assesses stock status and classifies fish selectivity based on the provided parameters.
+#' @param data A data frame containing the necessary columns for stock status calculation from Cope & Punt (2009)
 #' @param LM_ratio A numeric value representing the length at maturity ratio.
-#' @param Pobj A numeric value representing the percentage objective.
 #' @param Pmat A numeric value representing the percentage of mature fish.
 #' @param Popt A numeric value representing the percentage of optimally sized fish.
-#' @return A numeric vector containing TSB40 and LSB25.
+#' @param Pmega A numeric value representing the percentage megaspawner.
+#' @return A list containing the selected columns, the target value, the closest value index, the calculated stock status, and the fish classification.
 #' @examples
 #' utils::data("CPdata", package = "aLBI")
 #' FishSS(CPdata, 0.75, 100, 30, 25)
 #' @export
 #'
-FishSS <- function(data,
-                   LM_ratio, Pobj, Pmat, Popt ){
-  # Load necessary datasets within the function
-  utils::data("CPdata", package = "aLBI")
-  # this function will pick the columns by following LM_ration and Pobj
-  if(Pobj <= 100 && LM_ratio <= 0.75){
+#'
+FishSS <- function(data, LM_ratio, Pmat, Popt, Pmega) {
+
+  # Step 1: Calculate the objective probability (Pobj)
+  # Pmat, Popt, and Pmega are assumed to be percentages (0-100)
+  Pobj <- Pmat + Popt + Pmega
+
+  # Step 2: Select the appropriate columns for stock status calculation
+  # This section implements the logic for stock status assessment
+  if (Pobj <= 100 && LM_ratio <= 0.75) {
     p <- cbind(data[, c("Tx", "A", "C")])
-
-  } else if(Pobj <= 100 && LM_ratio >= 0.9){
+  } else if (Pobj <= 100 && LM_ratio >= 0.9) {
     p <- cbind(data[, c("Tx", "B", "D")])
-
-  } else if(Pobj > 100 && Pobj < 200 && LM_ratio <= 0.75){
+  } else if (Pobj > 100 && Pobj < 200 && LM_ratio <= 0.75) {
     p <- cbind(data[, c("Tx", "E", "G")])
-
-  } else if(Pobj > 100 && Pobj < 200 && LM_ratio >= 0.9)
+  } else if (Pobj > 100 && Pobj < 200 && LM_ratio >= 0.9) {
     p <- cbind(data[, c("Tx", "F", "H")])
-
-  else if( Pobj >= 200)
+  } else if (Pobj >= 200) {
     p <- cbind(data[, c("Tx", "I", "J")])
-  else{
-    warning("Your LM_ration doesn't fall in the appropriate condition. The value should be <= 0.75 and >= 0.9")
+  } else {
+    # If no condition is met, return an error or warning
+    warning("Your LM_ratio doesn't fall in the appropriate condition. The value should be <= 0.75 or >= 0.9. Returning NULL.")
+    return(NULL)
   }
 
-  #This condition will pick the target value Tx from the target column
-  for(i in p[[1,2]])
-    if ( i > 0){
-      (Tr <- Popt)
-    }
-  else{
-    (Tr <- Pmat)
+  # Step 3: Determine the target value (Tr)
+  # Corrected logic to check the first value of the second column
+  if (p[[1, 2]] > 0) {
+    Tr <- Popt
+  } else {
+    Tr <- Pmat
   }
 
-  # finding the result
+  # Step 4: Find the closest target value and calculate stock status
   difference <- abs(p[[1]] - Tr)
   closest_vi <- which.min(difference)
   TSB40 <- p[[2]][closest_vi]
   LSB25 <- p[[3]][closest_vi]
-  result <- c(TSB40 = TSB40 , LSB25 = LSB25)
+  stock_status <- c(TSB40 = TSB40, LSB25 = LSB25)
 
-  #return()
-  # selected columns
 
-  Target_cols <- as.data.frame(p)
+  # Step 5: Perform fish selectivity classification based on the flowchart
+  # This section implements the fish classification algorithm
+  if (Pobj < 100) {
+    if ((Popt + Pmega) == 0) {
+      selectivity <- "Fish small, immature"
+    } else {
+      selectivity <- "Fish small and optimally-sized or all but biggest"
+    }
+  } else if (Pobj >= 100 && Pobj < 200) {
+    selectivity <- "Fish maturity ogive"
+  } else if (Pobj >= 200) {
+    if (Popt < 100) {
+      selectivity <- "Fish optimally-sized and bigger"
+    } else if (Popt >= 100) {
+      selectivity <- "Fish optimally-sized"
+    }
+  } else {
+    selectivity <- "selectivity not found"
+  }
 
-  #return(list(columns = p, target = Tr, result = result))
+  # Step 6: Return all results in a single, comprehensive list
   return(list(
-    Target_Cols = Target_cols,
-    Target_value = Tr,
-    Colesest_value = closest_vi,
-    StockStatus = result
+    #Target_Cols = as.data.frame(p),
+    #Target_value = Tr,
+    #Closest_value = closest_vi,
+    StockStatus = stock_status,
+    Selectivity = selectivity
   ))
 }
+
 

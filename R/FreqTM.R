@@ -1,0 +1,177 @@
+# Declare global variables at the top of the file
+utils::globalVariables(c("Length_Range", "Length", "Frequency", "Month"))
+
+#' @title FreqTM Generate Frequency Distribution Table for Fish Length Data Across Months
+#' @description Creates a frequency distribution table for fish length data across multiple months using a consistent length class structure. The bin width is determined by either a custom value or Wang's formula, applied uniformly across all months. The function dynamically detects and renames columns to 'Month' and 'Length' from the input dataframe. The maximum observed length is included as part of the last class, with the upper bound set to the smallest multiple of the bin width greater than or equal to the maximum length. Months can be converted to dates using a configurable day and year, with dates assigned sequentially in 'day.month.year' format (e.g., 15.01.26).
+#' @param data A data frame containing columns for months and lengths (names can vary, e.g., 'Month', 'Length', or any other names).
+#' @param bin_width Numeric value specifying the bin width for class intervals. If NULL (default), bin width is calculated using Wang's formula.
+#' @param Lmax Numeric value for the maximum observed fish length. Required only if `bin_width` is NULL and Wang's formula is used. Defaults to NULL.
+#' @param output_file Character string specifying the output Excel file name. Defaults to "FreqTM_Output.xlsx".
+#' @param date_config A list with elements `day` (default 1) and `year` (default 2025) to set the day and year for converting month names to dates. The day must be between 1 and 31.
+#' @return A data frame with columns 'Length' (upper bound of each class) and monthly frequency columns as dates in 'day.month.year' format, where each row represents a length class and its frequency across months.
+#'
+#' @examples
+#' # Load required packages
+#' library(dplyr)
+#' library(openxlsx)
+#'
+#' # Generate sample data with custom column names
+#' set.seed(123)
+#' sample_data <- data.frame(
+#'   Time = rep(c("Aug", "Sep"), each = 100),
+#'   Size = runif(200, min = 5, max = 20)
+#' )
+#'
+#' # Create frequency table with automatic bin width and default date config
+#' result <- FreqTM(data = sample_data, output_file = tempfile(fileext = ".xlsx"))
+#'
+#' # Create frequency table with custom bin width and specific date
+#' result <- FreqTM(data = sample_data, bin_width = 2,
+#'                         date_config = list(day = 15, year = 2026),
+#'                         output_file = tempfile(fileext = ".xlsx"))
+#'
+#' @importFrom dplyr group_by summarise mutate select %>% n left_join
+#' @importFrom openxlsx write.xlsx createWorkbook addWorksheet writeData
+#' @importFrom stats na.omit
+#' @importFrom utils tail
+#'
+#' @export
+#'
+FreqTM <- function(data, bin_width = NULL, Lmax = NULL, output_file = "FreqTM_Output.xlsx",
+                             date_config = list(day = 1, year = 2025)) {
+  # Validate input
+  if (!is.data.frame(data)) {
+    stop("Input 'data' must be a data frame with at least two columns (one for months and one for lengths).")
+  }
+  if (ncol(data) < 2) {
+    stop("Data frame must contain at least two columns (one for months and one for lengths).")
+  }
+
+  # Validate date_config
+  if (!is.list(date_config) || !all(c("day", "year") %in% names(date_config))) {
+    stop("date_config must be a list containing 'day' and 'year' elements.")
+  }
+  if (!is.numeric(date_config$day) || date_config$day < 1 || date_config$day > 31) {
+    stop("day must be a numeric value between 1 and 31.")
+  }
+  if (!is.numeric(date_config$year) || date_config$year < 1900 || date_config$year > 2100) {
+    stop("year must be a numeric value between 1900 and 2100.")
+  }
+
+  # Remove NA values and check data
+  data <- stats::na.omit(data)
+  if (nrow(data) == 0) {
+    stop("No valid (non-NA) data provided.")
+  }
+  message("Data rows after NA removal: ", nrow(data))
+
+  # Dynamically detect and rename columns
+  # Identify month-like column (non-numeric, categorical data)
+  is_month <- sapply(data, function(x) !is.numeric(x) && length(unique(x)) < nrow(data) / 10)  # Heuristic for categorical data
+  month_col <- names(data)[which(is_month)][1]
+  if (is.null(month_col)) {
+    stop("No column resembling months (non-numeric, categorical) found in the data frame.")
+  }
+  names(data)[names(data) == month_col] <- "Month"
+  message("Renamed column '", month_col, "' to 'Month'.")
+
+  # Identify length-like column (numeric data)
+  is_length <- sapply(data, is.numeric)
+  length_col <- names(data)[which(is_length)][1]
+  if (is.null(length_col)) {
+    stop("No column resembling lengths (numeric) found in the data frame.")
+  }
+  names(data)[names(data) == length_col] <- "Length"
+  message("Renamed column '", length_col, "' to 'Length'.")
+
+  # Ensure Length is numeric
+  if (!is.numeric(data$Length)) {
+    data$Length <- as.numeric(data$Length)
+    if (any(is.na(data$Length))) {
+      stop("Non-numeric or invalid values found in 'Length' column after conversion.")
+    }
+  }
+  message("Min Length: ", min(data$Length), ", Max Length: ", max(data$Length))
+
+  # Calculate range across all data
+  min_length <- min(data$Length)
+  max_length <- max(data$Length)
+
+  # Determine bin width
+  if (is.null(bin_width)) {
+    if (is.null(Lmax)) {
+      Lmax <- max_length
+      message("Lmax not provided. Using maximum observed length: ", round(Lmax, 2))
+    }
+    bin_width <- round(0.23 * (Lmax^0.6))  # Wang's formula, rounded to nearest integer
+    message("Calculated bin width using Wang's formula: ", bin_width)
+  } else {
+    if (!is.numeric(bin_width) || bin_width <= 0) {
+      stop("bin_width must be a positive numeric value.")
+    }
+    message("Using custom bin width: ", bin_width)
+  }
+
+  # Generate consistent bin edges, ensuring the upper bound includes the maximum length
+  max_class <- ceiling((max_length + bin_width - 1) / bin_width) * bin_width  # Next multiple after max_length
+  breaks <- seq(floor(min_length), max_class, by = bin_width)
+  length_classes <- tail(breaks, -1)  # Use upper bounds as numeric length classes (excluding the first break)
+  message("Length classes (upper bounds): ", paste(length_classes, collapse = ", "))
+
+  # Initialize result data frame with all possible length classes (upper bounds)
+  result <- data.frame(Length = length_classes)
+
+  # Convert months to dates sequentially and format as day.month.year
+  months <- unique(data$Month)
+  month_order <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+  ordered_months <- months[order(match(months, month_order))]
+  # Create base date and adjust for valid days
+  base_date <- as.Date(paste(date_config$year, "01", "01", sep = "-"))
+  dates <- as.Date(paste(date_config$year,
+                         sprintf("%02d", match(ordered_months, month_order)),
+                         sprintf("%02d", date_config$day), sep = "-"))
+  # Format dates as day.month.year with two-digit year
+  date_strings <- format(dates, "%d.%m.%y")
+  message("Converted months to dates: ", paste(date_strings, collapse = ", "))
+
+  # Process each month/date
+  for (i in seq_along(ordered_months)) {
+    month <- ordered_months[i]
+    date_str <- date_strings[i]
+    month_data <- data[data$Month == month, ]
+    freq_table <- data.frame(
+      Length_Range = cut(month_data$Length, breaks = breaks, include.lowest = TRUE, right = FALSE)
+    ) %>%
+      dplyr::group_by(Length_Range) %>%
+      dplyr::summarise(Frequency = dplyr::n(), .groups = "drop") %>%
+      dplyr::mutate(Length = as.numeric(sub("\\[(\\d+\\.?\\d*),.*", "\\1", as.character(Length_Range))) + bin_width)
+
+    # Create a complete frequency table with all length classes (upper bounds)
+    freq_complete <- data.frame(Length = length_classes)
+    freq_complete <- dplyr::left_join(freq_complete, freq_table[, c("Length", "Frequency")], by = "Length")
+    freq_complete$Frequency <- replace(freq_complete$Frequency, is.na(freq_complete$Frequency), 0)
+    message("Rows in freq_complete for ", month, " (", date_str, "): ", nrow(freq_complete))
+
+    # Merge with result using date as column name
+    result <- dplyr::left_join(result, freq_complete[, c("Length", "Frequency")], by = "Length", suffix = c("", paste0("_", date_str)))
+    colnames(result)[ncol(result)] <- date_str  # Rename the frequency column to the date string
+  }
+
+  # Replace NA frequencies with 0 for months where no data exists in a length class
+  result[, -1] <- lapply(result[, -1], function(x) replace(x, is.na(x), 0))
+
+  # Create workbook and save to Excel
+  wb <- openxlsx::createWorkbook()
+  openxlsx::addWorksheet(wb, "FreqTM")
+  openxlsx::writeData(wb, sheet = "FreqTM", x = result, rowNames = FALSE)
+
+  if (file.exists(output_file)) {
+    warning("Overwriting existing file: ", output_file)
+  }
+  openxlsx::saveWorkbook(wb, file = output_file, overwrite = TRUE)
+
+  # Return result
+  return(result)
+}
+

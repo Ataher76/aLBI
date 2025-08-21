@@ -61,6 +61,24 @@ NULL
 #' head(lenfreq02)
 NULL
 
+#' lenfreqM: Example length-weight dataset for aLBI package
+#'
+#' This dataset contains length data of multiple months
+#' @name lenfreqM
+#' @docType data
+#' @usage data(lenfreqM)
+#' @format A data frame with 2 columns: First one is month and second one is length
+#' \describe{
+#'   \item{\code{Months}}{Name of the Sampling Months}
+#'   \item{\code{Length}}{Measured lengths of the sampled fish}
+#' }
+#' @source Data collected for fish stock assessment studies
+#' @examples
+#' data(lenfreqM, package = "aLBI")
+#' head(lenfreqM)
+NULL
+
+
 #' ExData: Example raw length dataset for aLBI package
 #'
 #' This dataset contains description of ExData.
@@ -95,3 +113,24 @@ NULL
 #' data(LWdata, package = "aLBI")
 #' head(LWdata)
 NULL
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
