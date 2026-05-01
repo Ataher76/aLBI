@@ -1,8 +1,25 @@
 # aLBI: Estimating Length-Based Indicators for Fish Stock
 
-## Overview
-aLBI is a specialized R package for fish stock assessment in data-limited scenarios. It implements a simplified framework for estimating life-history parameters and assessing stock status using length-frequency data, following the methods of Froese (2004) and Cope & Punt (2009).
+[![CRAN status](https://www.r-pkg.org/badges/version/aLBI)](https://CRAN.R-project.org/package=aLBI)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 
+## **Overview**
+`aLBI` is a specialized R package for fish stock assessment in data-limited scenarios. It implements a simplified framework for estimating life-history parameters and assessing stock status using length-frequency data, following the methods of **Froese (2004)** and **Cope & Punt (2009)**.
+
+### **Key Features in v0.1.9**
+*   **Enhanced Reliability:** Direct user input for `Linf` and `Lmat` is now supported to improve model accuracy and allow for sensitivity analysis.
+*   **Statistical Robustness:** Integrated **Monte Carlo** simulations and **non-parametric bootstrapping** for reliable parameter estimation.
+*   **New Functionality:** 
+    *   `LWR`: Fits and visualizes length-weight relationships.
+    *   `FreqTM`: Handles multi-month length-frequency data structures.
+    *   Updated `FrequencyTable`, `FishPar`, and `FishSS` with automated decision-making logic for selectivity.
+
+---
+
+## **Installation**
+
+#installing pacakge from CRAN
+#install.packages("aLBI")
 ## Key Features in v0.1.9
 Enhanced Reliability: Direct user input for Linf and Lmat is now supported to improve model accuracy and allow for sensitivity analysis.
 
