@@ -1,61 +1,61 @@
-#Install devtools package by following
+aLBI: Estimating Length-Based Indicators for Fish Stock
+Overview
+aLBI is a specialized R package for fish stock assessment in data-limited scenarios. It implements a simplified framework for estimating life-history parameters and assessing stock status using length-frequency data, following the methods of Froese (2004) and Cope & Punt (2009).
 
-install.packages("devtools")
+Key Features in v0.1.9
+Enhanced Reliability: Direct user input for Linf and Lmat is now supported to improve model accuracy and allow for sensitivity analysis.
 
-# unload if this package is in use previously
-detach("package:aLBI", unload = T)
+Statistical Robustness: Integrated Monte Carlo simulations and non-parametric bootstrapping for reliable parameter estimation.
 
-# or remove the existing package by following code
-remove.packages("aLBI")
+New Functionality:
 
-# Install the latest package
-devtools::install_github("Ataher76/aLBI", force = T)
+LWR: Fits and visualizes length-weight relationships.
 
+FreqTM: Handles multi-month length-frequency data structures.
 
-#Enter one or more numbers, or an empty line to skip updates: 1
+Updated FrequencyTable, FishPar, and FishSS with automated decision-making logic for selectivity.
 
-# calling the library
+Installation
+Install the stable version from CRAN:
+
+R
+install.packages("aLBI")
+For the latest development version with advanced sensitivity features, install from GitHub:
+
+R
+# install.packages("devtools")
+devtools::install_github("Ataher76/aLBI", force = TRUE)
+Quick Start
+R
 library(aLBI)
 
-# see the documentation of the first function
-?FishPar
+# 1. Estimate length parameters and sustainability indicators
+# Supports user-defined Linf and Lmat for sensitivity analysis
+results <- FishPar(data = your_data, resample = 1000, Linf = NULL, Lmat = NULL)
 
-#or
-help(FishPar)
+# 2. View results
+results$estimated_length_par
+results$estimated_froese_par
 
-# see the documentation of the secon function
-?FishSS
+# 3. Assess stock status
+StockStatus <- FishSS(data = CPdata, 
+                      LM_ratio = results$LM_ratio, 
+                      Pmat = results$estimated_froese_par[1,2], 
+                      Popt = results$estimated_froese_par[2,2])
+How to Cite
+If you use aLBI in your research, please cite both the software and the methodology paper:
 
-# or
-help(FishSS)
+Journal Article:
 
-# estimating lenght parameters
-estimatedParameters <- FishPar(data = lenfreq01, resample = 1000, progress = F)
+Ali, A., Sarker, M. R., & Alam, M. S. (2025). Development of a simple R package (aLBI) for the estimation of stock status from the length frequency data. Fisheries Research, 288, 107467. https://doi.org/10.1016/j.fishres.2025.107467
 
-#Extracting estimated length parameters
-estimatedParameters$estimated_length_par
-#Extracting estimated froese parameters
-estimatedParameters$estimated_froese_par
-#Extracting estimated frequency parameters
-estimatedParameters$estimated_freq_par
-#Extracting estimated LM_ratio
-estimatedParameters$LM_ratio
-#Extracting estimated Pobj
-estimatedParameters$Pobj
+Software:
 
+Ali, A., & Alam, M. S. (2024). aLBI: Estimating Length-Based Indicators for Fish Stock (Version 0.1.9).
 
+Contact
+Ataher Ali – University of Chittagong, Bangladesh
 
+Email: ataher.cu.ms@gmail.com
 
-#Calling the second function
-StockStatus <- FishSS(data = CPdata,
-                      LM_ratio = 0.7,
-                      Pobj = 97,
-                      Pmat = 29.91881 ,
-                      Popt = 25.46208
-)
-
-# Extracting stock status
-
-StockStatus$StockStatus
-StockStatus$Target_Cols
-
+GitHub: Ataher76
